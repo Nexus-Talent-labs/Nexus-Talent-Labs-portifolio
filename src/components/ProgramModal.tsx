@@ -25,19 +25,36 @@ export default function ProgramModal({ program, onClose, onApply }: ProgramModal
           <X className="w-5 h-5" />
         </button>
 
-        {/* Header */}
-        <div className="space-y-3 pb-6 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 border border-blue-500/20 text-cyan-400">
+        {/* Header Banner Image */}
+        <div className="relative h-44 sm:h-52 rounded-2xl overflow-hidden border border-white/10 mb-6 group">
+          <img 
+            src={program.image} 
+            alt={program.title}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80';
+            }}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/60 to-transparent" />
+          
+          <div className="absolute top-4 left-4 flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-600/80 text-cyan-200 border border-blue-400/40 backdrop-blur-md">
               {program.category}
             </span>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 backdrop-blur-md">
               {program.badge}
             </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-['Outfit']">
-            {program.title}
-          </h2>
+
+          <div className="absolute bottom-4 left-4 right-4 space-y-1">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-['Outfit'] drop-shadow-md">
+              {program.title}
+            </h2>
+          </div>
+        </div>
+
+        {/* Header Description */}
+        <div className="space-y-3 pb-6 border-b border-white/10">
           <p className="text-sm text-zinc-300 leading-relaxed">
             {program.description}
           </p>
@@ -99,17 +116,13 @@ export default function ProgramModal({ program, onClose, onApply }: ProgramModal
         </div>
 
         {/* Footer Action */}
-        <div className="pt-4 flex items-center justify-between gap-4 border-t border-white/10">
-          <div>
-            <span className="text-xs text-zinc-400 block">Total Tuition Fee</span>
-            <span className="text-xl font-extrabold text-white">{program.fee}</span>
-          </div>
+        <div className="pt-4 flex items-center justify-end border-t border-white/10">
           <button
             onClick={() => {
               onClose();
               onApply(program.id);
             }}
-            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 font-bold text-xs text-white shadow-xl shadow-blue-500/25 flex items-center gap-2 transition-all active:scale-95"
+            className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 font-bold text-xs text-white shadow-xl shadow-blue-500/25 flex items-center justify-center gap-2 transition-all active:scale-95"
           >
             <Sparkles className="w-4 h-4" /> Enroll in {program.title}
           </button>

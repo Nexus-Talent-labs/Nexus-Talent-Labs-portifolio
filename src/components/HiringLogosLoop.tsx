@@ -11,16 +11,16 @@ const hyderabadStartupLogos: LogoItem[] = [
     href: 'https://darwinbox.com'
   },
   {
-    src: '/logos/keka.svg',
-    alt: 'Keka HR',
-    title: 'Keka HR',
-    href: 'https://keka.com'
-  },
-  {
     src: '/logos/highradius.svg',
     alt: 'HighRadius',
     title: 'HighRadius',
     href: 'https://highradius.com'
+  },
+  {
+    src: '/logos/keka.svg',
+    alt: 'Keka HR',
+    title: 'Keka HR',
+    href: 'https://keka.com'
   },
   {
     src: '/logos/zenoti.svg',
@@ -53,16 +53,28 @@ const hyderabadStartupLogos: LogoItem[] = [
     href: 'https://valuemomentum.com'
   },
   {
-    src: '/logos/zeta.svg',
-    alt: 'Zeta Tech',
-    title: 'Zeta Tech',
-    href: 'https://zeta.tech'
-  },
-  {
     src: '/logos/happiestminds.svg',
     alt: 'Happiest Minds',
     title: 'Happiest Minds',
     href: 'https://happiestminds.com'
+  },
+  {
+    src: '/logos/zeta.svg',
+    alt: 'Zeta',
+    title: 'Zeta',
+    href: 'https://zeta.tech'
+  },
+  {
+    src: '/logos/sonata.svg',
+    alt: 'Sonata Software',
+    title: 'Sonata Software',
+    href: 'https://sonata-software.com'
+  },
+  {
+    src: '/logos/birlasoft.svg',
+    alt: 'Birlasoft',
+    title: 'Birlasoft',
+    href: 'https://birlasoft.com'
   }
 ];
 
@@ -79,14 +91,14 @@ export default function HiringLogosLoop() {
         scaleOnHover={true}
         fadeOut={true}
         fadeOutColor="#0b0c14"
-        ariaLabel="Hyderabad Startups and Mid-Range Tech Hiring Partners"
+        ariaLabel="Recruiters from Fortune 500 enterprises, tech startups, and MNCs hire directly from Nexus Talent Labs"
         renderItem={(item, key) => (
           <a
             key={key}
             href={item.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 px-3 py-1.5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-cyan-500/40 hover:bg-white/[0.08] transition-all group shrink-0"
+            className="flex items-center gap-3 px-5 py-2.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-cyan-500/40 hover:bg-white/[0.08] transition-all group shrink-0 shadow-lg"
           >
             <img
               src={item.src}

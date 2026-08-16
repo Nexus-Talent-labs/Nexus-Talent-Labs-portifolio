@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 import React from 'react';
 import GlobalAppLoader from '@/components/GlobalAppLoader';
+import GlobalScrollCursorEffect from '@/components/GlobalScrollCursorEffect';
+import CookieConsentBanner from '@/components/CookieConsentBanner';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://nexustalentlabs.com'),
@@ -104,6 +106,8 @@ export default function RootLayout({
       </head>
       <body className="bg-[#09090b] text-zinc-100 antialiased selection:bg-blue-600/30 selection:text-cyan-300">
         <GlobalAppLoader />
+        <GlobalScrollCursorEffect />
+        <CookieConsentBanner />
         {children}
       </body>
     </html>

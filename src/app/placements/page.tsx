@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import NeuralCanvas from '@/components/NeuralCanvas';
@@ -10,6 +11,11 @@ import AskAIWidget from '@/components/AskAIWidget';
 import SpotlightCard from '@/components/reactbits/SpotlightCard';
 import ShinyText from '@/components/reactbits/ShinyText';
 import Magnet from '@/components/reactbits/Magnet';
+import CountUp from '@/components/reactbits/CountUp';
+import AIGradientBorder from '@/components/reactbits/AIGradientBorder';
+import HiringLogosLoop from '@/components/HiringLogosLoop';
+import MisplacedBentoSupport from '@/components/MisplacedBentoSupport';
+import ThreeAnimeCTA from '@/components/ThreeAnimeCTA';
 import { SUCCESS_STORIES, HIRING_COMPANIES } from '@/data/placements';
 import { 
   Award, 
@@ -27,11 +33,14 @@ import {
   Compass, 
   Headphones, 
   Rocket, 
-  Sparkle
+  Sparkle,
+  Plus,
+  Minus
 } from 'lucide-react';
 
 export default function PlacementsPage() {
   const [isApplyOpen, setIsApplyOpen] = useState(false);
+  const [expandedAdvantages, setExpandedAdvantages] = useState<number[]>([]);
 
   return (
     <div className="relative min-h-screen bg-[#09090b] text-white overflow-hidden selection:bg-blue-600/30 selection:text-cyan-300">
@@ -75,18 +84,18 @@ export default function PlacementsPage() {
             </button>
           </div>
 
-          {/* Highlight Statistics Cards */}
+          {/* Highlight Statistics Cards with CountUp Animations */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 pt-10">
             {[
-              { label: 'Students Trained', value: '5,000+', desc: 'Graduates & Tech Professionals', color: 'text-cyan-400' },
-              { label: 'Hiring Connections', value: '100+', desc: 'MNCs, Startups & Tech Giants', color: 'text-purple-400' },
-              { label: 'Placement Assistance', value: '95%', desc: 'Verified 120-Day Placement Rate', color: 'text-emerald-400' },
-              { label: 'Industry-Aligned', value: '100%', desc: 'Updated Corporate Curricula', color: 'text-amber-400' }
+              { label: 'Students Trained', count: 5000, suffix: '+', desc: 'Graduates & Tech Professionals', color: 'text-cyan-400' },
+              { label: 'Hiring Connections', count: 100, suffix: '+', desc: 'MNCs, Startups & Tech Giants', color: 'text-purple-400' },
+              { label: 'Placement Assistance', count: 95, suffix: '%', desc: 'Verified 120-Day Placement Rate', color: 'text-emerald-400' },
+              { label: 'Industry-Aligned', count: 100, suffix: '%', desc: 'Updated Corporate Curricula', color: 'text-amber-400' }
             ].map((stat, idx) => (
               <SpotlightCard key={idx} className="p-6 space-y-2 text-left">
                 <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">{stat.label}</span>
                 <span className={`text-3xl sm:text-4xl font-extrabold ${stat.color} font-['Space_Grotesk'] block`}>
-                  {stat.value}
+                  <CountUp to={stat.count} suffix={stat.suffix} duration={2} />
                 </span>
                 <span className="text-[11px] text-zinc-400 block">{stat.desc}</span>
               </SpotlightCard>
@@ -95,253 +104,303 @@ export default function PlacementsPage() {
         </section>
 
 
-        {/* 2. OUR PLACEMENT APPROACH (6-STEP TIMELINE PROCESS) */}
-        <section className="space-y-12">
+        {/* 2. OUR PLACEMENT APPROACH (INTERACTIVE CENTRAL VERTICAL TIMELINE) */}
+        <section className="space-y-16 py-8">
           <div className="text-center space-y-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-cyan-400">Structured Roadmap</span>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white font-['Outfit']">Our Placement Approach</h2>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto">
-              A systematic 6-step career acceleration model designed to transition learners into confident corporate professionals.
+            <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Structured Roadmap</span>
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-white font-['Outfit']">
+              Our Placement Approach
+            </h2>
+            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+              A proven, transparent process that ensures success every step of the way
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                step: '01',
-                title: 'Skill Assessment',
-                desc: 'Evaluate student technical capabilities, logical reasoning, and career goals to construct personalized learning pathways.',
-                icon: Target,
-                color: 'text-cyan-400 bg-cyan-600/20 border-cyan-500/30'
-              },
-              {
-                step: '02',
-                title: 'Industry-Focused Training',
-                desc: 'Train learners on production technologies, real enterprise projects, and hiring company requirements.',
-                icon: BookOpen,
-                color: 'text-purple-400 bg-purple-600/20 border-purple-500/30'
-              },
-              {
-                step: '03',
-                title: 'Placement Preparation',
-                desc: 'Comprehensive training in aptitude, coding assessments, technical communication, resume optimization, and LinkedIn profiling.',
-                icon: FileText,
-                color: 'text-emerald-400 bg-emerald-600/20 border-emerald-500/30'
-              },
-              {
-                step: '04',
-                title: 'Mock Interviews',
-                desc: 'Rigorous technical, HR, and managerial interview simulations conducted by experienced tech leads with actionable feedback.',
-                icon: MessageSquare,
-                color: 'text-amber-400 bg-amber-600/20 border-amber-500/30'
-              },
-              {
-                step: '05',
-                title: 'Company Connect',
-                desc: 'Direct referral pushes connecting trained candidates with matching job roles across our 100+ corporate hiring network.',
-                icon: Building2,
-                color: 'text-blue-400 bg-blue-600/20 border-blue-500/30'
-              },
-              {
-                step: '06',
-                title: 'Career Support',
-                desc: 'Continuous mentorship and guidance throughout interview rounds, salary negotiation, and onboarding.',
-                icon: Compass,
-                color: 'text-pink-400 bg-pink-600/20 border-pink-500/30'
-              }
-            ].map((step, idx) => {
-              const StepIcon = step.icon;
-              return (
-                <SpotlightCard key={idx} className="h-full space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-3xl font-extrabold text-white/30 font-['Space_Grotesk']">
-                      STEP {step.step}
-                    </span>
-                    <div className={`p-3 rounded-2xl border ${step.color}`}>
-                      <StepIcon className="w-5 h-5" />
-                    </div>
-                  </div>
+          {/* Timeline Container with Step-Triggered Dotted Curves */}
+          <div className="relative max-w-5xl mx-auto px-4">
+            {/* Dotted Curved Connecting Lines (Desktop) - Only reveals when next card is present */}
+            <svg 
+              className="absolute inset-0 w-full h-full pointer-events-none z-0 hidden md:block" 
+              viewBox="0 0 1000 960" 
+              preserveAspectRatio="none"
+            >
+              <defs>
+                {[
+                  '#38bdf8', // Card 1 -> 2 cyan
+                  '#818cf8', // Card 2 -> 3 indigo
+                  '#a855f7', // Card 3 -> 4 purple
+                  '#ec4899', // Card 4 -> 5 pink
+                  '#34d399'  // Card 5 -> 6 emerald
+                ].map((color, cIdx) => (
+                  <marker
+                    key={cIdx}
+                    id={`arrowPointer-${cIdx}`}
+                    viewBox="0 0 12 12"
+                    refX="9"
+                    refY="6"
+                    markerWidth="10"
+                    markerHeight="10"
+                    orient="auto"
+                  >
+                    <path d="M 0 1 L 11 6 L 0 11 L 3 6 Z" fill={color} />
+                  </marker>
+                ))}
+              </defs>
 
-                  <h3 className="text-xl font-bold text-white font-['Outfit']">{step.title}</h3>
-                  <p className="text-xs text-zinc-400 leading-relaxed">{step.desc}</p>
-                </SpotlightCard>
-              );
-            })}
+              {/* 5 Individual Curved Segments Triggered when Next Card Enters View */}
+              {[
+                { path: "M 250 80 C 500 80, 500 240, 750 240", color: "#38bdf8" },
+                { path: "M 750 240 C 500 240, 500 400, 250 400", color: "#818cf8" },
+                { path: "M 250 400 C 500 400, 500 560, 750 560", color: "#a855f7" },
+                { path: "M 750 560 C 500 560, 500 720, 250 720", color: "#ec4899" },
+                { path: "M 250 720 C 500 720, 500 880, 750 880", color: "#34d399" }
+              ].map((seg, sIdx) => (
+                <motion.path
+                  key={sIdx}
+                  d={seg.path}
+                  fill="none"
+                  stroke={seg.color}
+                  strokeWidth="4"
+                  strokeDasharray="8 8"
+                  markerEnd={`url(#arrowPointer-${sIdx})`}
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  whileInView={{ pathLength: 1, opacity: 0.95 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+                />
+              ))}
+            </svg>
+
+            {/* Timeline Steps Loop */}
+            <div className="space-y-12 md:space-y-16 relative z-10">
+              {[
+                {
+                  step: '01',
+                  duration: '1-2 weeks',
+                  title: 'Skill Assessment',
+                  desc: 'Evaluate student technical capabilities, logical reasoning, and career goals to construct personalized learning pathways.'
+                },
+                {
+                  step: '02',
+                  duration: '2-3 weeks',
+                  title: 'Industry-Focused Training',
+                  desc: 'Train learners on production technologies, real enterprise projects, and hiring company requirements.'
+                },
+                {
+                  step: '03',
+                  duration: '4-8 weeks',
+                  title: 'Placement Preparation',
+                  desc: 'Comprehensive training in aptitude, coding assessments, technical communication, resume optimization, and LinkedIn profiling.'
+                },
+                {
+                  step: '04',
+                  duration: '1-2 weeks',
+                  title: 'Mock Interviews',
+                  desc: 'Rigorous technical, HR, and managerial interview simulations conducted by experienced tech leads with actionable feedback.'
+                },
+                {
+                  step: '05',
+                  duration: '3-5 days',
+                  title: 'Company Connect',
+                  desc: 'Direct referral pushes connecting trained candidates with matching job roles across our 100+ corporate hiring network.'
+                },
+                {
+                  step: '06',
+                  duration: 'Ongoing',
+                  title: 'Career Support',
+                  desc: 'Continuous mentorship and guidance throughout interview rounds, salary negotiation, and onboarding.'
+                }
+              ].map((item, idx) => {
+                const isEven = idx % 2 === 1;
+
+                return (
+                  <motion.div 
+                    key={idx}
+                    initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.25 }}
+                    transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                    className="relative flex flex-col md:flex-row items-center w-full min-h-[140px]"
+                  >
+                    {/* Step Card Slot */}
+                    <div className={`w-full ${isEven ? 'md:w-[calc(50%-1.5rem)] md:ml-auto' : 'md:w-[calc(50%-1.5rem)] md:mr-auto'}`}>
+                      <AIGradientBorder duration={6} className="rounded-3xl shadow-2xl">
+                        <div className="glass-panel p-6 sm:p-8 rounded-3xl bg-[#0c0e1a]/95 border border-white/15 space-y-3 relative group hover:border-cyan-400/50 transition-all">
+                          <div className="flex items-center justify-between">
+                            <span className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 font-['Space_Grotesk']">
+                              {item.step}
+                            </span>
+                            <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-white/10 text-zinc-300 border border-white/15 backdrop-blur-md">
+                              {item.duration}
+                            </span>
+                          </div>
+                          <h3 className="text-xl sm:text-2xl font-extrabold text-white font-['Outfit']">
+                            {item.title}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans">
+                            {item.desc}
+                          </p>
+                        </div>
+                      </AIGradientBorder>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         </section>
 
 
-        {/* 4. WHY COMPANIES CHOOSE NEXUS TALENT LABS STUDENTS */}
-        <section className="glass-panel rounded-3xl p-8 sm:p-14 border border-white/15 space-y-10">
+        {/* 4. WHY COMPANIES CHOOSE NEXUS TALENT LABS STUDENTS (STAGGERED CHEVRON ARROW CASCADE) */}
+        <section className="glass-panel rounded-3xl p-6 sm:p-14 border border-white/15 space-y-12 relative overflow-hidden">
           <div className="text-center space-y-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-cyan-400">The Employer Advantage</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">The Employer Advantage</span>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-white font-['Outfit']">
               Why Companies Choose Nexus Talent Labs Students
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto leading-relaxed">
               Our graduates possess the practical skills, corporate mindset, and adaptability required by modern software teams.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Staggered Chevron Arrow Cascade Staircase (Spans 100% Left Edge to Right Edge) */}
+          <div className="space-y-6 w-full mx-auto pt-4 relative">
             {[
-              'Industry-ready technical skills aligned with modern enterprise tech stacks',
-              'Hands-on project experience built in production-simulated lab environments',
-              'Strong analytical problem-solving abilities and algorithmic thinking',
-              'Generative AI and emerging technology exposure for high-velocity coding',
-              'Professional verbal & written communication tailored for corporate settings',
-              'Corporate work culture readiness, sprint discipline, and team accountability',
-              'Practical knowledge grounded in commercial software business requirements'
-            ].map((reason, idx) => (
-              <SpotlightCard key={idx} className="flex items-start gap-3.5 p-5">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed font-medium">
-                  {reason}
-                </p>
-              </SpotlightCard>
-            ))}
-          </div>
-        </section>
-
-
-        {/* 5. STUDENT SUCCESS STORIES */}
-        <section className="space-y-10">
-          <div className="text-center space-y-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-cyan-400">Verified Offers</span>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white font-['Outfit']">Student Success Stories</h2>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto">
-              Hear directly from our graduates who secured high-growth engineering roles across leading global tech organizations.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {SUCCESS_STORIES.map((story) => {
-              const initials = story.studentName
-                .split(' ')
-                .map((n) => n[0])
-                .join('');
+              {
+                tag: 'TECHNICAL MASTERY',
+                text: 'Industry-ready technical skills aligned with modern enterprise tech stacks',
+                theme: 'orange'
+              },
+              {
+                tag: 'ENTERPRISE LABS',
+                text: 'Hands-on project experience built in production-simulated lab environments',
+                theme: 'slate'
+              },
+              {
+                tag: 'ALGORITHMIC LOGIC',
+                text: 'Strong analytical problem-solving abilities and algorithmic thinking',
+                theme: 'orange'
+              },
+              {
+                tag: 'GENAI & AI COPILOTS',
+                text: 'Generative AI and emerging technology exposure for high-velocity coding',
+                theme: 'slate'
+              },
+              {
+                tag: 'CORPORATE COMMUNICATION',
+                text: 'Professional verbal & written communication tailored for corporate settings',
+                theme: 'orange'
+              },
+              {
+                tag: 'SPRINT DISCIPLINE',
+                text: 'Corporate work culture readiness, sprint discipline, and team accountability',
+                theme: 'slate'
+              },
+              {
+                tag: 'COMMERCIAL IMPACT',
+                text: 'Practical knowledge grounded in commercial software business requirements',
+                theme: 'orange'
+              }
+            ].map((item, idx) => {
+              const isOrange = item.theme === 'orange';
+              // Fixed banner width = 270px; midpoint = 135px. Each step starts exactly at the midpoint of the preceding step!
+              const stepPaddingPx = idx * 135; 
+              const isExpanded = expandedAdvantages.includes(idx);
 
               return (
-                <SpotlightCard key={story.id} className="h-full space-y-6 p-8">
-                  <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-extrabold text-lg shadow-lg border border-white/20">
-                      {initials}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white font-['Outfit']">{story.studentName}</h3>
-                      <p className="text-xs font-semibold text-cyan-300">{story.role} at {story.company}</p>
-                      <p className="text-[11px] text-zinc-400 mt-0.5">Track: {story.courseTaken}</p>
-                    </div>
-                  </div>
+                <div 
+                  key={idx}
+                  style={{ paddingLeft: `${stepPaddingPx}px` }}
+                  className="w-full transition-all duration-500 group max-md:!pl-0"
+                >
+                  <div className="w-full max-w-md lg:max-w-lg">
+                    {/* Chevron Arrow Header Banner with + / - Toggle Button */}
+                    <button
+                      onClick={() => {
+                        setExpandedAdvantages(prev =>
+                          prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
+                        );
+                      }}
+                      className={`relative inline-flex items-center justify-between gap-3 px-5 py-3 w-[270px] shrink-0 font-extrabold text-xs sm:text-sm uppercase tracking-wider font-['Space_Grotesk'] shadow-2xl pr-10 rounded-l-lg cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] [clip-path:polygon(0_0,calc(100%-20px)_0,100%_50%,calc(100%-20px)_100%,0_100%)] ${
+                        isOrange 
+                          ? 'bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 text-white shadow-orange-500/30' 
+                          : 'bg-gradient-to-r from-slate-900 via-[#121626] to-[#1a2136] text-cyan-300 border-y border-l border-cyan-500/40 shadow-cyan-500/20'
+                      }`}
+                    >
+                      <span className="truncate">{item.tag}</span>
+                      <span className="w-6 h-6 rounded-full bg-black/35 border border-white/30 flex items-center justify-center text-white shrink-0 ml-1 shadow-lg transition-transform group-hover:scale-110">
+                        {isExpanded ? <Minus className="w-3.5 h-3.5 text-amber-300" /> : <Plus className="w-3.5 h-3.5 text-white" />}
+                      </span>
+                    </button>
 
-                  <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between text-xs">
-                    <div>
-                      <span className="text-zinc-500 block text-[10px]">Previous Background</span>
-                      <span className="text-zinc-300 font-semibold">{story.previousRole}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-emerald-400 block text-[10px] font-bold">Offer Package</span>
-                      <span className="text-emerald-400 font-extrabold text-xl font-['Space_Grotesk']">{story.package}</span>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-zinc-300 italic leading-relaxed">
-                    "{story.quote}"
-                  </p>
-                </SpotlightCard>
-              );
-            })}
+                  {/* Expandable Glass Details Box Below Chevron */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                        animate={{ opacity: 1, height: 'auto', marginTop: 8 }}
+                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-5 rounded-2xl bg-[#090b16]/95 border border-white/15 shadow-2xl backdrop-blur-xl group-hover:border-cyan-400/50 transition-all">
+                          <div className="flex items-start gap-3">
+                            <CheckCircle2 className={`w-5 h-5 shrink-0 mt-0.5 ${isOrange ? 'text-amber-400' : 'text-cyan-400'}`} />
+                            <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed font-medium">
+                              {item.text}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            );
+          })}
           </div>
         </section>
 
 
-        {/* 6. HIRING PARTNERS SECTION */}
+        {/* 5. HIRING PARTNERS SECTION WITH INFINITE SCROLLING LOGO LOOP */}
         <section className="space-y-8 text-center">
           <div className="space-y-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-cyan-400">Corporate Network</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">Corporate Network</span>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-white font-['Outfit']">
               Our Students Are Prepared For Leading Organizations
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto leading-relaxed">
               Recruiters from Fortune 500 enterprises, tech startups, and MNCs hire directly from Nexus Talent Labs.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
-            {HIRING_COMPANIES.map((company, idx) => (
-              <SpotlightCard key={idx} className="p-6 flex items-center justify-center space-x-2 group">
-                <Building2 className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
-                <span className="text-base font-bold text-white font-['Outfit'] group-hover:text-cyan-300 transition-colors">
-                  {company.name}
-                </span>
-              </SpotlightCard>
-            ))}
+          {/* Smooth Infinite Marquee Scrolling Logo Loop */}
+          <div className="pt-2">
+            <HiringLogosLoop />
           </div>
         </section>
 
 
-        {/* 7. PLACEMENT SUPPORT FEATURES */}
-        <section className="space-y-10">
+        {/* 7. PLACEMENT SUPPORT FEATURES (MISPLACED BENTO MASONRY GRID) */}
+        <section className="space-y-6">
           <div className="text-center space-y-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-cyan-400">End-to-End Assistance</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-cyan-400 font-mono">End-to-End Assistance</span>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-white font-['Outfit']">
               Complete Career Support Ecosystem
             </h2>
+            <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed">
+              Asymmetric misplaced Bento Masonry grid detailing our continuous placement and mentorship ecosystem.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { title: 'Dedicated Placement Assistance', desc: 'Active team coordinating interview slots and company referrals.', icon: Briefcase },
-              { title: 'Industry Mentor Guidance', desc: '1-on-1 career directions from senior engineering leads.', icon: Users },
-              { title: 'Resume & Portfolio Review', desc: 'ATS-friendly resume formatting and GitHub project showcases.', icon: FileText },
-              { title: 'Interview Preparation', desc: 'Intense mock rounds simulating real corporate hiring benchmarks.', icon: MessageSquare },
-              { title: 'Job Opportunity Updates', desc: 'Real-time alerts for active job openings across partner companies.', icon: Sparkle },
-              { title: 'Career Counseling', desc: 'Personalized guidance tailored to individual strengths and targets.', icon: Headphones },
-              { title: 'Internship Guidance', desc: 'Hands-on commercial project exposure during training.', icon: Target },
-              { title: 'Professional Development Support', desc: 'Soft skills, presentation, and executive corporate etiquette.', icon: Award }
-            ].map((feature, idx) => {
-              const FeatureIcon = feature.icon;
-              return (
-                <SpotlightCard key={idx} className="space-y-3 p-6">
-                  <div className="p-3 rounded-2xl bg-blue-600/20 text-cyan-400 border border-blue-500/30 w-fit">
-                    <FeatureIcon className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-lg font-bold text-white font-['Outfit']">{feature.title}</h3>
-                  <p className="text-xs text-zinc-400 leading-relaxed">{feature.desc}</p>
-                </SpotlightCard>
-              );
-            })}
-          </div>
+          {/* Misplaced Bento Masonry Support Component */}
+          <MisplacedBentoSupport />
         </section>
 
 
-        {/* 8. FINAL CTA BANNER */}
-        <section className="glass-panel rounded-3xl p-8 sm:p-16 border border-blue-500/30 text-center space-y-6 relative overflow-hidden">
-          <span className="text-xs font-bold uppercase tracking-widest text-cyan-400">Take The Next Step</span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white font-['Outfit'] max-w-3xl mx-auto">
-            Your Dream Career Starts With The Right Skills
-          </h2>
-          <p className="text-xs sm:text-base text-zinc-300 max-w-2xl mx-auto leading-relaxed">
-            Join Nexus Talent Labs and transform your knowledge into industry-ready expertise with expert training and placement support.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <Magnet strength={20}>
-              <button
-                onClick={() => setIsApplyOpen(true)}
-                className="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 hover:opacity-95 font-bold text-xs sm:text-sm text-white shadow-2xl shadow-blue-500/30 flex items-center gap-2"
-              >
-                <Rocket className="w-4 h-4 text-cyan-300" /> Enroll Now
-              </button>
-            </Magnet>
-            
-            <button
-              onClick={() => setIsApplyOpen(true)}
-              className="px-8 py-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/15 font-bold text-xs sm:text-sm text-zinc-200 hover:text-white transition-all flex items-center gap-2"
-            >
-              <Headphones className="w-4 h-4 text-purple-400" /> Talk To Career Advisor
-            </button>
-          </div>
+        {/* 8. FINAL CTA BANNER (THREE.JS 3D WEBGL & ANIME-STYLE TYPOGRAPHY) */}
+        <section className="pt-6">
+          <ThreeAnimeCTA />
         </section>
 
       </main>

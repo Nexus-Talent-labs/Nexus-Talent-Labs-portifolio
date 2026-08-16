@@ -11,6 +11,7 @@ export interface CourseProgram {
   placementRate: string;
   badge: string;
   icon: string;
+  image: string;
   modules: string[];
   tools: string[];
   fee: string;
@@ -32,6 +33,7 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     placementRate: '98%',
     badge: 'Flagship Program',
     icon: 'Brain',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?w=800&auto=format&fit=crop&q=80',
     modules: [
       'Advanced Mathematics & Matrix Calculus for AI',
       'Supervised & Unsupervised Machine Learning Algorithms',
@@ -59,6 +61,7 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     placementRate: '96%',
     badge: 'High Demand',
     icon: 'BarChart',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80',
     modules: [
       'Advanced Statistical Analysis & Hypothesis Testing',
       'Python for Data Science (Pandas, NumPy, Scipy)',
@@ -86,6 +89,7 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     placementRate: '95%',
     badge: 'AI Powered',
     icon: 'Code',
+    image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800&auto=format&fit=crop&q=80',
     modules: [
       'Python Data Structures & OOP Architectural Patterns',
       'Asynchronous Programming with Asyncio & FastAPI',
@@ -251,5 +255,30 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     fee: '₹68,000',
     nextBatch: 'September 2, 2026',
     popular: false
+  },
+  {
+    id: 'crt-partnership',
+    title: 'Campus Recruitment Training (CRT) & Institutional Partnerships',
+    category: 'Full Stack with AI',
+    description: 'Customized on-campus CRT bootcamps, FDPs, skill enhancement, technology workshops, and institutional placement support.',
+    duration: 'Custom (60 - 120 Hours)',
+    skillLevel: 'Beginner',
+    mode: 'On-Campus',
+    projectsCount: 15,
+    expectedSalary: 'Institutional MoU',
+    placementRate: '98%',
+    badge: 'Institutional MoU',
+    icon: 'Building2',
+    modules: [
+      'Campus Recruitment Training (CRT) Bootcamp',
+      'Faculty Development Programs (FDPs)',
+      'Embedded Skill Enhancement Programs',
+      'Technology Workshops & Hackathons',
+      'Direct Recruiter Connect & Hiring Drives'
+    ],
+    tools: ['TCS NQT Prep', 'LeetCode Sandbox', 'Mock HR Panels', 'Placement Portal'],
+    fee: 'Custom Institutional MoU',
+    nextBatch: 'Custom Campus Schedule',
+    popular: true
   }
 ];

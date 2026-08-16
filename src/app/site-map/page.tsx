@@ -40,14 +40,15 @@ export default function SitemapPage() {
       ]
     },
     {
-      title: 'Faculty & Community',
+      title: 'Talents & Community',
       icon: Star,
       color: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
       links: [
-        { label: 'Faculty Members', href: '/faculty' },
-        { label: 'Placement Stats', href: '/placements' },
+        { label: 'Our Talents', href: '/faculty' },
+        { label: 'Placement Records', href: '/placements' },
         { label: 'Upcoming Events', href: '/events' },
-        { label: 'Tech Blog & Insights', href: '/blog' }
+        { label: 'Tech Blog & Insights', href: '/blog' },
+        { label: 'CRT Partnerships', href: '/crt-partnerships' }
       ]
     },
     {
@@ -55,7 +56,7 @@ export default function SitemapPage() {
       icon: Mail,
       color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
       links: [
-        { label: 'Contact Us', href: '/contact' },
+        { label: 'Contact Support', href: '/contact' },
         { label: 'Office Locations', href: '/contact' },
         { label: 'Admissions Desk', href: '/contact' }
       ]
@@ -65,7 +66,8 @@ export default function SitemapPage() {
       icon: ShieldCheck,
       color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
       links: [
-        { label: 'Privacy Policy', href: '/privacy' },
+        { label: 'Cookie Policy', href: '/cookie-policy' },
+        { label: 'Privacy Policy', href: '/privacy-policy' },
         { label: 'Terms of Use', href: '/terms' },
         { label: 'Sitemap Index', href: '/site-map' }
       ]
