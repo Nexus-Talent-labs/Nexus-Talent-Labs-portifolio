@@ -327,25 +327,123 @@ export default function Logo3DViewer({
     };
   }, [modelPath]);
 
+  const [isOverlayVisible, setIsOverlayVisible] = useState(true);
+
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => {
+        setIsOverlayVisible(false);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
   return (
-    <div className={`relative flex items-center justify-center ${className}`}>
-      {loading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center space-y-3 bg-[#09090b]/40 backdrop-blur-sm rounded-3xl z-10">
-          <div className="w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-mono font-bold text-cyan-300">
-            Loading 3D Model ({progress}%)
-          </span>
+    <>
+      {/* Full-Application Liquid Loading Screen Overlay */}
+      {isOverlayVisible && (
+        <div
+          className={`fixed inset-0 z-[9999] bg-[#09090b] flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out ${
+            loading ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
+        >
+          {/* Ambient Glowing Background Effect */}
+          <div className="absolute w-[500px] h-[500px] bg-gradient-to-tr from-blue-600/20 via-purple-600/20 to-cyan-500/20 rounded-full blur-[140px] animate-pulse pointer-events-none" />
+
+          <div className="relative flex flex-col items-center space-y-8 z-10 p-6 max-w-sm w-full text-center">
+            
+            {/* Liquid Fill Logo Container */}
+            <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center">
+              
+              {/* Outer Glowing Rotating Tech Ring */}
+              <div className="absolute -inset-5 rounded-full border border-cyan-500/20 border-t-cyan-400 border-r-purple-500 animate-spin [animation-duration:3.5s]" />
+              <div className="absolute -inset-9 rounded-full border border-dashed border-blue-500/10 animate-spin [animation-duration:8s] [animation-direction:reverse]" />
+
+              {/* 1. Base Outline Logo (Dark Background) */}
+              <img
+                src="/nexus-logo.png"
+                alt="Nexus Logo Base"
+                className="w-full h-full object-contain opacity-20 filter grayscale brightness-50"
+              />
+
+              {/* 2. Rising Liquid Container (Bottom-to-Top Clip) */}
+              <div
+                className="absolute bottom-0 left-0 right-0 overflow-hidden transition-all duration-300 ease-out flex items-end justify-center"
+                style={{ height: `${Math.max(4, Math.min(100, progress))}%` }}
+              >
+                {/* SVG Animated Wave Boundary at Top of Liquid Level */}
+                <div className="absolute top-0 left-0 right-0 -translate-y-1/2 overflow-hidden h-4 pointer-events-none">
+                  <svg
+                    className="w-[200%] h-full animate-[marquee_2s_linear_infinite]"
+                    viewBox="0 0 1200 120"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M0,0 C150,90 350,-40 500,40 C650,110 900,-20 1200,40 L1200,120 L0,120 Z"
+                      fill="#22d3ee"
+                      opacity="0.85"
+                    />
+                  </svg>
+                </div>
+
+                {/* Full Color Glowing Filled Logo Image */}
+                <div className="w-36 h-36 sm:w-44 sm:h-44 flex-shrink-0">
+                  <img
+                    src="/nexus-logo.png"
+                    alt="Nexus Liquid Filled Logo"
+                    className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(34,211,238,0.95)]"
+                  />
+                </div>
+              </div>
+
+            </div>
+
+            {/* Progress Percentage Counter & Status Labels */}
+            <div className="flex flex-col items-center space-y-3 w-full">
+              
+              {/* Digital Percentage Display */}
+              <div className="flex items-baseline space-x-1 font-mono">
+                <span className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 tracking-tighter">
+                  {progress}
+                </span>
+                <span className="text-2xl font-bold text-cyan-400">%</span>
+              </div>
+
+              {/* Liquid Progress Bar Track */}
+              <div className="w-full max-w-[260px] h-2.5 rounded-full bg-white/10 overflow-hidden p-[1px] border border-white/15 shadow-inner">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-400 transition-all duration-300 ease-out shadow-[0_0_15px_rgba(34,211,238,0.9)]"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+
+              {/* Status Subtitle Text */}
+              <div className="flex items-center space-x-2 text-xs font-mono font-semibold uppercase tracking-widest text-zinc-400 pt-1">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                <span>
+                  {progress < 100
+                    ? 'Loading 3D Phoenix Engine...'
+                    : 'System Ready • Launching Nexus'}
+                </span>
+              </div>
+
+            </div>
+
+          </div>
         </div>
       )}
 
-      {errorMsg && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-[#09090b]/80 backdrop-blur-md rounded-3xl z-10 text-red-400 text-xs font-mono p-4 text-center">
-          <span>⚠️ 3D Model Load Error</span>
-          <span className="text-[10px] text-zinc-400">{errorMsg}</span>
-        </div>
-      )}
+      {/* Main 3D Canvas Mount Point */}
+      <div className={`relative flex items-center justify-center ${className}`}>
+        {errorMsg && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-[#09090b]/80 backdrop-blur-md rounded-3xl z-10 text-red-400 text-xs font-mono p-4 text-center">
+            <span>⚠️ 3D Model Load Error</span>
+            <span className="text-[10px] text-zinc-400">{errorMsg}</span>
+          </div>
+        )}
 
-      <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
-    </div>
+        <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
+      </div>
+    </>
   );
 }
