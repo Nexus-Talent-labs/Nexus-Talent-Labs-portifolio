@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
 interface Logo3DViewerProps {
   modelPath?: string;
@@ -16,6 +17,7 @@ export default function Logo3DViewer({
   const mountRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const container = mountRef.current;
@@ -36,7 +38,7 @@ export default function Logo3DViewer({
     const clock = new THREE.Clock();
 
     // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -44,7 +46,7 @@ export default function Logo3DViewer({
 
     container.appendChild(renderer.domElement);
 
-    // Lights (Hemisphere + Dual Directional + Ambient + Point Light for maximum visibility)
+    // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
     scene.add(ambientLight);
 
@@ -121,8 +123,12 @@ export default function Logo3DViewer({
       scene.add(ringMesh);
     }
 
-    // Load GLB Model Asset
+    // Load GLB Model Asset with Google Draco Decoder Support
     const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    loader.setDRACOLoader(dracoLoader);
+
     let targetUrl = modelPath || '/glb/logo.glb';
     if (targetUrl.startsWith('public/')) {
       targetUrl = targetUrl.replace(/^public\//, '/');
@@ -184,8 +190,9 @@ export default function Logo3DViewer({
           setProgress(percent);
         }
       },
-      (error) => {
-        console.error('Error loading 3D GLB model:', error);
+      (err) => {
+        console.error('Error loading 3D GLB model:', err);
+        setErrorMsg(err.message || 'Failed to render 3D asset');
         setLoading(false);
       }
     );
@@ -221,25 +228,34 @@ export default function Logo3DViewer({
 
     animate();
 
-    // Resize Handler
+    // Responsive Resize Handler & Observer
     const handleResize = () => {
       if (!container) return;
       const w = container.clientWidth;
       const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      if (w > 0 && h > 0) {
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }
     };
+
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+    resizeObserver.observe(container);
 
     window.addEventListener('resize', handleResize);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(reqId);
       if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
       renderer.dispose();
+      dracoLoader.dispose();
     };
   }, [modelPath]);
 
@@ -253,6 +269,14 @@ export default function Logo3DViewer({
           </span>
         </div>
       )}
+
+      {errorMsg && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-[#09090b]/80 backdrop-blur-md rounded-3xl z-10 text-red-400 text-xs font-mono p-4 text-center">
+          <span>⚠️ 3D Model Load Error</span>
+          <span className="text-[10px] text-zinc-400">{errorMsg}</span>
+        </div>
+      )}
+
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
     </div>
   );
