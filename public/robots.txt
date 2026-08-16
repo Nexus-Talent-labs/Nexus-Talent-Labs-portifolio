@@ -1,0 +1,11 @@
+# robots.txt for https://nexustalentlabs.com
+
+User-agent: *
+Allow: /
+
+# Exclude private endpoints
+Disallow: /api/
+
+# XML Sitemaps
+Sitemap: https://nexustalentlabs.com/sitemap.xml
+Sitemap: https://nexustalentlabs.com/site-map.xml
