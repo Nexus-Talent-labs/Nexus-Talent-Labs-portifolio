@@ -123,81 +123,113 @@ export default function Logo3DViewer({
       scene.add(ringMesh);
     }
 
-    // Load GLB Model Asset directly from /glb/logo.glb
+    // Load GLB Model Asset with Draco Decoder & LFS Pointer Interception
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     loader.setDRACOLoader(dracoLoader);
 
-    let targetUrl = '/glb/logo.glb';
-    if (modelPath && !modelPath.startsWith('http') && modelPath !== 'public/glb/logo.glb') {
-      targetUrl = modelPath.startsWith('/') ? modelPath : `/${modelPath}`;
+    let targetUrl = modelPath || '/glb/logo_compressed.glb';
+    if (targetUrl.startsWith('public/')) {
+      targetUrl = targetUrl.replace(/^public\//, '/');
     }
 
-    loader.load(
-      targetUrl,
-      (gltf) => {
-        const loadedScene = gltf.scene;
+    const gdriveStreamUrl = 'https://drive.usercontent.google.com/download?id=1WXA468KXhivdZq01BMOuwtp2AqgD3zXF&export=download&confirm=t';
 
-        // Traverse sub-meshes to ensure materials render double-sided & vibrant
-        loadedScene.traverse((child) => {
-          if ((child as THREE.Mesh).isMesh) {
-            const mesh = child as THREE.Mesh;
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            if (mesh.material) {
-              const mat = mesh.material as THREE.MeshStandardMaterial;
-              mat.side = THREE.DoubleSide;
-              mat.needsUpdate = true;
+    const loadGlbModel = async (urlToLoad: string, isFallback = false) => {
+      try {
+        const response = await fetch(urlToLoad);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+
+        // Detect if Vercel served a Git LFS text pointer file ("version https://git-lfs...")
+        const textHead = new TextDecoder().decode(arrayBuffer.slice(0, 30));
+        if (textHead.startsWith('version https://') || textHead.startsWith('version http')) {
+          console.warn('Git LFS text pointer detected on Vercel. Switching to raw binary stream fallback...');
+          if (!isFallback) {
+            return loadGlbModel(gdriveStreamUrl, true);
+          }
+        }
+
+        loader.parse(
+          arrayBuffer,
+          '',
+          (gltf) => {
+            const loadedScene = gltf.scene;
+
+            // Traverse sub-meshes to ensure materials render double-sided & vibrant
+            loadedScene.traverse((child) => {
+              if ((child as THREE.Mesh).isMesh) {
+                const mesh = child as THREE.Mesh;
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                if (mesh.material) {
+                  const mat = mesh.material as THREE.MeshStandardMaterial;
+                  mat.side = THREE.DoubleSide;
+                  mat.needsUpdate = true;
+                }
+              }
+            });
+
+            // Play internal GLTF keyframe/skeletal animations
+            if (gltf.animations && gltf.animations.length > 0) {
+              mixer = new THREE.AnimationMixer(loadedScene);
+              gltf.animations.forEach((clip) => {
+                const action = mixer?.clipAction(clip);
+                action?.play();
+              });
+            }
+
+            // Calculate bounding box and center model at (0,0,0)
+            const box = new THREE.Box3().setFromObject(loadedScene);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+
+            loadedScene.position.sub(center);
+
+            const pivotGroup = new THREE.Group();
+            pivotGroup.add(loadedScene);
+
+            const maxDim = Math.max(size.x, size.y, size.z);
+            if (maxDim > 0) {
+              const scale = 2.6 / maxDim;
+              pivotGroup.scale.set(scale, scale, scale);
+            }
+
+            pivotGroup.position.set(0, 0.1, 0);
+            modelGroup = pivotGroup;
+
+            scene.add(pivotGroup);
+            setErrorMsg(null);
+            setLoading(false);
+          },
+          (err: unknown) => {
+            console.warn('GLTFLoader parse error:', err);
+            if (!isFallback) {
+              loadGlbModel(gdriveStreamUrl, true);
+            } else {
+              const message = err instanceof Error ? err.message : String(err);
+              setErrorMsg(message || 'Failed to render 3D asset');
+              setLoading(false);
             }
           }
-        });
-
-        // Play internal GLTF keyframe/skeletal animations if present in the file
-        if (gltf.animations && gltf.animations.length > 0) {
-          mixer = new THREE.AnimationMixer(loadedScene);
-          gltf.animations.forEach((clip) => {
-            const action = mixer?.clipAction(clip);
-            action?.play();
-          });
+        );
+      } catch (err: unknown) {
+        console.warn('Fetch error:', err);
+        if (!isFallback) {
+          loadGlbModel(gdriveStreamUrl, true);
+        } else {
+          const message = err instanceof Error ? err.message : String(err);
+          setErrorMsg(message || 'Failed to fetch 3D model asset');
+          setLoading(false);
         }
-
-        // Calculate bounding box and center model at (0,0,0)
-        const box = new THREE.Box3().setFromObject(loadedScene);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-
-        loadedScene.position.sub(center);
-
-        const pivotGroup = new THREE.Group();
-        pivotGroup.add(loadedScene);
-
-        const maxDim = Math.max(size.x, size.y, size.z);
-        if (maxDim > 0) {
-          const scale = 2.6 / maxDim;
-          pivotGroup.scale.set(scale, scale, scale);
-        }
-
-        pivotGroup.position.set(0, 0.1, 0);
-        modelGroup = pivotGroup;
-
-        scene.add(pivotGroup);
-        setErrorMsg(null);
-        setLoading(false);
-      },
-      (xhr) => {
-        if (xhr.lengthComputable) {
-          const percent = Math.round((xhr.loaded / xhr.total) * 100);
-          setProgress(percent);
-        }
-      },
-      (err: unknown) => {
-        console.error('Error loading 3D GLB model:', err);
-        const message = err instanceof Error ? err.message : String(err);
-        setErrorMsg(message || 'Failed to render 3D asset');
-        setLoading(false);
       }
-    );
+    };
+
+    loadGlbModel(targetUrl);
 
     // Animation Loop
     const animate = () => {
