@@ -10,7 +10,7 @@ interface Logo3DViewerProps {
 }
 
 export default function Logo3DViewer({
-  modelPath = 'https://workdrive.zohoexternal.in/file/xaatz7324e3b82d92407eb74bef5144b5f24e',
+  modelPath = '/glb/logo.glb',
   className = 'w-full h-[380px] sm:h-[480px]'
 }: Logo3DViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -29,7 +29,8 @@ export default function Logo3DViewer({
 
     // Camera
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(0, 0.3, 5.2);
+    camera.position.set(0, 0.2, 5.0);
+    camera.lookAt(0, 0, 0);
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -41,22 +42,22 @@ export default function Logo3DViewer({
     container.appendChild(renderer.domElement);
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0x38bdf8, 2.8);
+    const dirLight1 = new THREE.DirectionalLight(0x38bdf8, 3.0);
     dirLight1.position.set(5, 8, 5);
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0xa855f7, 2.2);
+    const dirLight2 = new THREE.DirectionalLight(0xa855f7, 2.5);
     dirLight2.position.set(-5, -4, -5);
     scene.add(dirLight2);
 
-    const pointLight = new THREE.PointLight(0x06b6d4, 3.5, 20);
+    const pointLight = new THREE.PointLight(0x06b6d4, 4.0, 20);
     pointLight.position.set(0, 2, 4);
     scene.add(pointLight);
 
-    let model: THREE.Group | null = null;
+    let modelGroup: THREE.Group | null = null;
     let ringMesh: THREE.Mesh | null = null;
     let ringTexture: THREE.CanvasTexture | null = null;
     let reqId: number;
@@ -112,66 +113,56 @@ export default function Logo3DViewer({
       scene.add(ringMesh);
     }
 
-    // Resolve target GLB URL (Direct URL connection to Zoho Drive or custom URL)
-    let primaryUrl = modelPath;
-    if (modelPath.includes('workdrive.zohoexternal.in/file/')) {
-      const fileId = modelPath.split('/file/')[1];
-      primaryUrl = `https://workdrive.zohoexternal.in/api/v1/stream/download/${fileId}`;
-    }
-
+    // Load GLB Model Asset
     const loader = new GLTFLoader();
+    const targetUrl = modelPath && modelPath.startsWith('/') ? modelPath : '/glb/logo.glb';
 
-    const fetchAndRenderModel = (targetUrl: string, isFallback = false) => {
-      loader.load(
-        targetUrl,
-        (gltf) => {
-          model = gltf.scene;
+    loader.load(
+      targetUrl,
+      (gltf) => {
+        const loadedScene = gltf.scene;
 
-          // Auto-center and fit model to camera view
-          const box = new THREE.Box3().setFromObject(model);
-          const center = box.getCenter(new THREE.Vector3());
-          const size = box.getSize(new THREE.Vector3());
+        // Calculate bounding box and center model at (0,0,0)
+        const box = new THREE.Box3().setFromObject(loadedScene);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
 
-          model.position.x += model.position.x - center.x;
-          model.position.y += model.position.y - center.y + 0.15;
-          model.position.z += model.position.z - center.z;
+        loadedScene.position.sub(center);
 
-          const maxDim = Math.max(size.x, size.y, size.z);
-          if (maxDim > 0) {
-            const scale = 2.4 / maxDim;
-            model.scale.set(scale, scale, scale);
-          }
+        const pivotGroup = new THREE.Group();
+        pivotGroup.add(loadedScene);
 
-          scene.add(model);
-          setLoading(false);
-        },
-        (xhr) => {
-          if (xhr.lengthComputable) {
-            const percent = Math.round((xhr.loaded / xhr.total) * 100);
-            setProgress(percent);
-          }
-        },
-        (error) => {
-          console.warn(`Direct stream failed for ${targetUrl}:`, error);
-          if (!isFallback && targetUrl !== '/glb/logo.glb') {
-            // Seamless fallback to local GLB asset if Zoho Drive blocks direct stream cross-origin
-            fetchAndRenderModel('/glb/logo.glb', true);
-          } else {
-            setLoading(false);
-          }
+        const maxDim = Math.max(size.x, size.y, size.z);
+        if (maxDim > 0) {
+          const scale = 2.6 / maxDim;
+          pivotGroup.scale.set(scale, scale, scale);
         }
-      );
-    };
 
-    fetchAndRenderModel(primaryUrl);
+        pivotGroup.position.set(0, 0.1, 0);
+        modelGroup = pivotGroup;
+
+        scene.add(pivotGroup);
+        setLoading(false);
+      },
+      (xhr) => {
+        if (xhr.lengthComputable) {
+          const percent = Math.round((xhr.loaded / xhr.total) * 100);
+          setProgress(percent);
+        }
+      },
+      (error) => {
+        console.error('Error loading 3D GLB model:', error);
+        setLoading(false);
+      }
+    );
 
     // Animation Loop
     const animate = () => {
       reqId = requestAnimationFrame(animate);
 
-      if (model) {
-        model.rotation.y += 0.012; // Continuous Y-axis 3D rotation
-        model.rotation.x = Math.sin(Date.now() * 0.001) * 0.06; // Floating motion
+      if (modelGroup) {
+        modelGroup.rotation.y += 0.012; // Continuous Y-axis 3D rotation
+        modelGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.06; // Floating motion
       }
 
       if (ringMesh) {
@@ -216,7 +207,7 @@ export default function Logo3DViewer({
         <div className="absolute inset-0 flex flex-col items-center justify-center space-y-3 bg-[#09090b]/40 backdrop-blur-sm rounded-3xl z-10">
           <div className="w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
           <span className="text-xs font-mono font-bold text-cyan-300">
-            Connecting to 3D Stream ({progress}%)
+            Loading 3D Model ({progress}%)
           </span>
         </div>
       )}

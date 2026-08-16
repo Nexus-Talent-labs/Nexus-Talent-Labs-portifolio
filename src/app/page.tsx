@@ -271,7 +271,7 @@ export default function HomePage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="lg:col-span-5 w-full relative flex flex-col items-center justify-center bg-transparent border-none shadow-none"
             >
-              <Logo3DViewer modelPath="https://workdrive.zohoexternal.in/file/xaatz7324e3b82d92407eb74bef5144b5f24e" className="w-full h-[380px] sm:h-[460px]" />
+              <Logo3DViewer modelPath="/glb/logo.glb" className="w-full h-[380px] sm:h-[460px]" />
             </motion.div>
 
           </div>
