@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
 interface Logo3DViewerProps {
   modelPath?: string;
@@ -16,6 +17,7 @@ export default function Logo3DViewer({
   const mountRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const container = mountRef.current;
@@ -32,8 +34,11 @@ export default function Logo3DViewer({
     camera.position.set(0, 0.2, 5.0);
     camera.lookAt(0, 0, 0);
 
+    // Clock for GLTF AnimationMixer Delta
+    const clock = new THREE.Clock();
+
     // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -42,24 +47,29 @@ export default function Logo3DViewer({
     container.appendChild(renderer.domElement);
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0x38bdf8, 3.0);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x333344, 2.0);
+    hemiLight.position.set(0, 20, 0);
+    scene.add(hemiLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0x38bdf8, 3.2);
     dirLight1.position.set(5, 8, 5);
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0xa855f7, 2.5);
+    const dirLight2 = new THREE.DirectionalLight(0xa855f7, 2.8);
     dirLight2.position.set(-5, -4, -5);
     scene.add(dirLight2);
 
-    const pointLight = new THREE.PointLight(0x06b6d4, 4.0, 20);
-    pointLight.position.set(0, 2, 4);
+    const pointLight = new THREE.PointLight(0x06b6d4, 4.5, 25);
+    pointLight.position.set(0, 2, 5);
     scene.add(pointLight);
 
     let modelGroup: THREE.Group | null = null;
     let ringMesh: THREE.Mesh | null = null;
     let ringTexture: THREE.CanvasTexture | null = null;
+    let mixer: THREE.AnimationMixer | null = null;
     let reqId: number;
 
     // Create 3D Ribbon Text Mesh "NEXUS TALENT LABS"
@@ -113,14 +123,44 @@ export default function Logo3DViewer({
       scene.add(ringMesh);
     }
 
-    // Load GLB Model Asset
+    // Load GLB Model Asset directly from /glb/logo.glb
     const loader = new GLTFLoader();
-    const targetUrl = modelPath && modelPath.startsWith('/') ? modelPath : '/glb/logo.glb';
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    loader.setDRACOLoader(dracoLoader);
+
+    let targetUrl = '/glb/logo.glb';
+    if (modelPath && !modelPath.startsWith('http') && modelPath !== 'public/glb/logo.glb') {
+      targetUrl = modelPath.startsWith('/') ? modelPath : `/${modelPath}`;
+    }
 
     loader.load(
       targetUrl,
       (gltf) => {
         const loadedScene = gltf.scene;
+
+        // Traverse sub-meshes to ensure materials render double-sided & vibrant
+        loadedScene.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mesh = child as THREE.Mesh;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            if (mesh.material) {
+              const mat = mesh.material as THREE.MeshStandardMaterial;
+              mat.side = THREE.DoubleSide;
+              mat.needsUpdate = true;
+            }
+          }
+        });
+
+        // Play internal GLTF keyframe/skeletal animations if present in the file
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(loadedScene);
+          gltf.animations.forEach((clip) => {
+            const action = mixer?.clipAction(clip);
+            action?.play();
+          });
+        }
 
         // Calculate bounding box and center model at (0,0,0)
         const box = new THREE.Box3().setFromObject(loadedScene);
@@ -142,6 +182,7 @@ export default function Logo3DViewer({
         modelGroup = pivotGroup;
 
         scene.add(pivotGroup);
+        setErrorMsg(null);
         setLoading(false);
       },
       (xhr) => {
@@ -150,8 +191,10 @@ export default function Logo3DViewer({
           setProgress(percent);
         }
       },
-      (error) => {
-        console.error('Error loading 3D GLB model:', error);
+      (err: unknown) => {
+        console.error('Error loading 3D GLB model:', err);
+        const message = err instanceof Error ? err.message : String(err);
+        setErrorMsg(message || 'Failed to render 3D asset');
         setLoading(false);
       }
     );
@@ -160,6 +203,14 @@ export default function Logo3DViewer({
     const animate = () => {
       reqId = requestAnimationFrame(animate);
 
+      const delta = clock.getDelta();
+
+      // Update internal GLTF keyframe animations
+      if (mixer) {
+        mixer.update(delta);
+      }
+
+      // Continuous 3D rotation & floating physics
       if (modelGroup) {
         modelGroup.rotation.y += 0.012; // Continuous Y-axis 3D rotation
         modelGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.06; // Floating motion
@@ -179,25 +230,34 @@ export default function Logo3DViewer({
 
     animate();
 
-    // Resize Handler
+    // Responsive Resize Handler & Observer
     const handleResize = () => {
       if (!container) return;
       const w = container.clientWidth;
       const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      if (w > 0 && h > 0) {
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }
     };
+
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+    resizeObserver.observe(container);
 
     window.addEventListener('resize', handleResize);
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(reqId);
       if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
       renderer.dispose();
+      dracoLoader.dispose();
     };
   }, [modelPath]);
 
@@ -211,6 +271,14 @@ export default function Logo3DViewer({
           </span>
         </div>
       )}
+
+      {errorMsg && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2 bg-[#09090b]/80 backdrop-blur-md rounded-3xl z-10 text-red-400 text-xs font-mono p-4 text-center">
+          <span>⚠️ 3D Model Load Error</span>
+          <span className="text-[10px] text-zinc-400">{errorMsg}</span>
+        </div>
+      )}
+
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
     </div>
   );
