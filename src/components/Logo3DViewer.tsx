@@ -10,7 +10,7 @@ interface Logo3DViewerProps {
 }
 
 export default function Logo3DViewer({
-  modelPath = 'public/glb/logo.glb',
+  modelPath = '/glb/logo.glb',
   className = 'w-full h-[380px] sm:h-[480px]'
 }: Logo3DViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -31,6 +31,9 @@ export default function Logo3DViewer({
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(0, 0.2, 5.0);
     camera.lookAt(0, 0, 0);
+
+    // Clock for GLTF AnimationMixer Delta
+    const clock = new THREE.Clock();
 
     // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -60,6 +63,7 @@ export default function Logo3DViewer({
     let modelGroup: THREE.Group | null = null;
     let ringMesh: THREE.Mesh | null = null;
     let ringTexture: THREE.CanvasTexture | null = null;
+    let mixer: THREE.AnimationMixer | null = null;
     let reqId: number;
 
     // Create 3D Ribbon Text Mesh "NEXUS TALENT LABS"
@@ -113,7 +117,7 @@ export default function Logo3DViewer({
       scene.add(ringMesh);
     }
 
-    // Load GLB Model Asset (Map 'public/glb/logo.glb' or '/glb/logo.glb' to Next.js static asset path)
+    // Load GLB Model Asset
     const loader = new GLTFLoader();
     let targetUrl = modelPath || '/glb/logo.glb';
     if (targetUrl.startsWith('public/')) {
@@ -124,6 +128,15 @@ export default function Logo3DViewer({
       targetUrl,
       (gltf) => {
         const loadedScene = gltf.scene;
+
+        // Play internal GLTF keyframe/skeletal animations if present in the file
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(loadedScene);
+          gltf.animations.forEach((clip) => {
+            const action = mixer?.clipAction(clip);
+            action?.play();
+          });
+        }
 
         // Calculate bounding box and center model at (0,0,0)
         const box = new THREE.Box3().setFromObject(loadedScene);
@@ -163,6 +176,14 @@ export default function Logo3DViewer({
     const animate = () => {
       reqId = requestAnimationFrame(animate);
 
+      const delta = clock.getDelta();
+
+      // Update internal GLTF keyframe animations
+      if (mixer) {
+        mixer.update(delta);
+      }
+
+      // Continuous 3D rotation & floating physics
       if (modelGroup) {
         modelGroup.rotation.y += 0.012; // Continuous Y-axis 3D rotation
         modelGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.06; // Floating motion
