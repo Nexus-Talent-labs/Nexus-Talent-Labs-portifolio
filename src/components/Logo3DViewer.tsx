@@ -167,87 +167,103 @@ export default function Logo3DViewer({
     scene.add(fallbackGroup);
     modelGroup = fallbackGroup;
 
-    // Load GLB Model Asset directly from /glb/logo.glb
+    // Load GLB Model Asset with candidate path resolution
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     loader.setDRACOLoader(dracoLoader);
 
-    let targetUrl = '/glb/logo.glb';
-    if (modelPath && !modelPath.startsWith('http') && modelPath !== 'public/glb/logo.glb') {
-      targetUrl = modelPath.startsWith('/') ? modelPath : `/${modelPath}`;
-    }
+    const candidateUrls = [
+      modelPath,
+      '/glb/logo.glb',
+      './glb/logo.glb',
+      'glb/logo.glb'
+    ].filter((url, index, self) => url && self.indexOf(url) === index);
 
-    loader.load(
-      targetUrl,
-      (gltf) => {
-        const loadedScene = gltf.scene;
+    let currentCandidateIndex = 0;
 
-        // Traverse sub-meshes to ensure materials render double-sided & vibrant
-        loadedScene.traverse((child) => {
-          if ((child as THREE.Mesh).isMesh) {
-            const mesh = child as THREE.Mesh;
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            if (mesh.material) {
-              const mat = mesh.material as THREE.MeshStandardMaterial;
-              mat.side = THREE.DoubleSide;
-              mat.needsUpdate = true;
-            }
-          }
-        });
-
-        // Play internal GLTF keyframe/skeletal animations if present in the file
-        if (gltf.animations && gltf.animations.length > 0) {
-          mixer = new THREE.AnimationMixer(loadedScene);
-          gltf.animations.forEach((clip) => {
-            const action = mixer?.clipAction(clip);
-            action?.play();
-          });
-        }
-
-        // Calculate bounding box and center model at (0,0,0)
-        const box = new THREE.Box3().setFromObject(loadedScene);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-
-        loadedScene.position.sub(center);
-
-        const pivotGroup = new THREE.Group();
-        pivotGroup.add(loadedScene);
-
-        const maxDim = Math.max(size.x, size.y, size.z);
-        if (maxDim > 0) {
-          const scale = 2.6 / maxDim;
-          pivotGroup.scale.set(scale, scale, scale);
-        }
-
-        pivotGroup.position.set(0, 0.1, 0);
-
-        // Remove fallback model if present and replace with loaded GLB
-        if (fallbackGroup) {
-          scene.remove(fallbackGroup);
-          fallbackGroup = null;
-        }
-        modelGroup = pivotGroup;
-        scene.add(pivotGroup);
-
-        setErrorMsg(null);
-        setLoading(false);
-      },
-      (xhr) => {
-        if (xhr.lengthComputable) {
-          const percent = Math.round((xhr.loaded / xhr.total) * 100);
-          setProgress(percent);
-        }
-      },
-      (err: unknown) => {
-        console.warn('GLB model load fallback active:', err);
-        // If GLB fails to fetch (e.g. 404 on deployment), keep procedural 3D model running smoothly
+    const tryLoadNextCandidate = () => {
+      if (currentCandidateIndex >= candidateUrls.length) {
+        console.warn('All GLB candidate paths failed. Maintaining procedural 3D logo fallback.');
         setLoading(false);
         setErrorMsg(null);
+        return;
       }
-    );
+
+      const targetUrl = candidateUrls[currentCandidateIndex];
+      currentCandidateIndex++;
+
+      loader.load(
+        targetUrl,
+        (gltf) => {
+          const loadedScene = gltf.scene;
+
+          // Traverse sub-meshes to ensure materials render double-sided & vibrant
+          loadedScene.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              const mesh = child as THREE.Mesh;
+              mesh.castShadow = true;
+              mesh.receiveShadow = true;
+              if (mesh.material) {
+                const mat = mesh.material as THREE.MeshStandardMaterial;
+                mat.side = THREE.DoubleSide;
+                mat.needsUpdate = true;
+              }
+            }
+          });
+
+          // Play internal GLTF keyframe/skeletal animations if present in the file
+          if (gltf.animations && gltf.animations.length > 0) {
+            mixer = new THREE.AnimationMixer(loadedScene);
+            gltf.animations.forEach((clip) => {
+              const action = mixer?.clipAction(clip);
+              action?.play();
+            });
+          }
+
+          // Calculate bounding box and center model at (0,0,0)
+          const box = new THREE.Box3().setFromObject(loadedScene);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+
+          loadedScene.position.sub(center);
+
+          const pivotGroup = new THREE.Group();
+          pivotGroup.add(loadedScene);
+
+          const maxDim = Math.max(size.x, size.y, size.z);
+          if (maxDim > 0) {
+            const scale = 2.6 / maxDim;
+            pivotGroup.scale.set(scale, scale, scale);
+          }
+
+          pivotGroup.position.set(0, 0.1, 0);
+
+          // Remove fallback model if present and replace with loaded GLB
+          if (fallbackGroup) {
+            scene.remove(fallbackGroup);
+            fallbackGroup = null;
+          }
+          modelGroup = pivotGroup;
+          scene.add(pivotGroup);
+
+          setErrorMsg(null);
+          setLoading(false);
+        },
+        (xhr) => {
+          if (xhr.lengthComputable) {
+            const percent = Math.round((xhr.loaded / xhr.total) * 100);
+            setProgress(percent);
+          }
+        },
+        (err: unknown) => {
+          console.warn(`GLB load attempt failed for candidate [${targetUrl}]:`, err);
+          tryLoadNextCandidate();
+        }
+      );
+    };
+
+    tryLoadNextCandidate();
 
     // Animation Loop
     const animate = () => {
