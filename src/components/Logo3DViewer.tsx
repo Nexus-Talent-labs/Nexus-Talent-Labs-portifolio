@@ -190,9 +190,10 @@ export default function Logo3DViewer({
           setProgress(percent);
         }
       },
-      (err) => {
+      (err: unknown) => {
         console.error('Error loading 3D GLB model:', err);
-        setErrorMsg(err.message || 'Failed to render 3D asset');
+        const message = err instanceof Error ? err.message : String(err);
+        setErrorMsg(message || 'Failed to render 3D asset');
         setLoading(false);
       }
     );
