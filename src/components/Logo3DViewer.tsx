@@ -194,7 +194,11 @@ export default function Logo3DViewer({
       (err: unknown) => {
         console.error('Error loading 3D GLB model:', err);
         const message = err instanceof Error ? err.message : String(err);
-        setErrorMsg(message || 'Failed to render 3D asset');
+        if (message.includes("Unexpected token 'v'") || message.includes('JSON')) {
+          setErrorMsg('Deploying 5.5MB 3D Model... Please push the updated public/glb/logo.glb');
+        } else {
+          setErrorMsg(message || 'Failed to render 3D asset');
+        }
         setLoading(false);
       }
     );
