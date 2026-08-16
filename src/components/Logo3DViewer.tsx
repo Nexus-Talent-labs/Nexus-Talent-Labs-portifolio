@@ -11,7 +11,7 @@ interface Logo3DViewerProps {
 }
 
 export default function Logo3DViewer({
-  modelPath = '/glb/logo.glb',
+  modelPath = '/glb/logo_compressed.glb',
   className = 'w-full h-[380px] sm:h-[480px]'
 }: Logo3DViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
