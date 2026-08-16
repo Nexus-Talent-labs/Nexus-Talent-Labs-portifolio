@@ -340,7 +340,7 @@ export default function Logo3DViewer({
 
   return (
     <>
-      {/* Full-Application Liquid Loading Screen Overlay */}
+      {/* Full-Application Loading Dotted Spinner Screen Overlay */}
       {isOverlayVisible && (
         <div
           className={`fixed inset-0 z-[9999] bg-[#09090b] flex flex-col items-center justify-center transition-opacity duration-700 ease-in-out ${
@@ -350,58 +350,60 @@ export default function Logo3DViewer({
           {/* Ambient Glowing Background Effect */}
           <div className="absolute w-[500px] h-[500px] bg-gradient-to-tr from-blue-600/20 via-purple-600/20 to-cyan-500/20 rounded-full blur-[140px] animate-pulse pointer-events-none" />
 
-          <div className="relative flex flex-col items-center space-y-8 z-10 p-6 max-w-sm w-full text-center">
+          <div className="relative flex flex-col items-center space-y-9 z-10 p-6 max-w-sm w-full text-center">
             
-            {/* Liquid Fill Logo Container */}
-            <div className="relative w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center">
+            {/* Central Dotted Spinner Container */}
+            <div className="relative w-40 h-40 sm:w-48 sm:h-48 flex items-center justify-center">
               
-              {/* Outer Glowing Rotating Tech Ring */}
-              <div className="absolute -inset-5 rounded-full border border-cyan-500/20 border-t-cyan-400 border-r-purple-500 animate-spin [animation-duration:3.5s]" />
-              <div className="absolute -inset-9 rounded-full border border-dashed border-blue-500/10 animate-spin [animation-duration:8s] [animation-direction:reverse]" />
-
-              {/* 1. Base Outline Logo (Dark Background) */}
-              <img
-                src="/nexus-logo.png"
-                alt="Nexus Logo Base"
-                className="w-full h-full object-contain opacity-20 filter grayscale brightness-50"
-              />
-
-              {/* 2. Rising Liquid Container (Bottom-to-Top Clip) */}
-              <div
-                className="absolute bottom-0 left-0 right-0 overflow-hidden transition-all duration-300 ease-out flex items-end justify-center"
-                style={{ height: `${Math.max(4, Math.min(100, progress))}%` }}
-              >
-                {/* SVG Animated Wave Boundary at Top of Liquid Level */}
-                <div className="absolute top-0 left-0 right-0 -translate-y-1/2 overflow-hidden h-4 pointer-events-none">
-                  <svg
-                    className="w-[200%] h-full animate-[marquee_2s_linear_infinite]"
-                    viewBox="0 0 1200 120"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M0,0 C150,90 350,-40 500,40 C650,110 900,-20 1200,40 L1200,120 L0,120 Z"
-                      fill="#22d3ee"
-                      opacity="0.85"
-                    />
-                  </svg>
-                </div>
-
-                {/* Full Color Glowing Filled Logo Image */}
-                <div className="w-36 h-36 sm:w-44 sm:h-44 flex-shrink-0">
-                  <img
-                    src="/nexus-logo.png"
-                    alt="Nexus Liquid Filled Logo"
-                    className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(34,211,238,0.95)]"
+              {/* 1. Outer Reverse Dotted Orbit Ring */}
+              <div className="absolute inset-0 rounded-full border-2 border-dotted border-cyan-400/40 animate-spin [animation-duration:8s] [animation-direction:reverse]" />
+              
+              {/* 2. Middle Dotted Spinner Circle (12 Radial Glowing Dots) */}
+              <div className="absolute inset-2 animate-spin [animation-duration:1.8s] [animation-timing-function:linear]">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-3 h-3 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 shadow-[0_0_12px_rgba(34,211,238,0.95)]"
+                    style={{
+                      top: '50%',
+                      left: '50%',
+                      transform: `rotate(${i * 30}deg) translate(0, -70px) translate(-50%, -50%)`,
+                      opacity: 0.25 + (i / 12) * 0.75,
+                      scale: `${0.6 + (i / 12) * 0.5}`,
+                    }}
                   />
-                </div>
+                ))}
+              </div>
+
+              {/* 3. Inner Pulsing Dotted Accent Ring */}
+              <div className="absolute inset-6 rounded-full border border-dashed border-purple-500/30 animate-spin [animation-duration:4s]" />
+
+              {/* 4. Center Logo Icon with Glowing Pulse */}
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 p-3 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/10 flex items-center justify-center shadow-2xl">
+                <img
+                  src="/nexus-logo.png"
+                  alt="Nexus Logo"
+                  className="w-full h-full object-contain drop-shadow-[0_0_18px_rgba(59,130,246,0.85)] animate-pulse"
+                />
               </div>
 
             </div>
 
-            {/* Progress Percentage Counter & Status Labels */}
-            <div className="flex flex-col items-center space-y-3 w-full">
+            {/* Progress Percentage Counter & Dotted Status Display */}
+            <div className="flex flex-col items-center space-y-4 w-full">
               
-              {/* Digital Percentage Display */}
+              {/* Animated Bouncing Dotted Spinner Dots */}
+              <div className="flex items-center gap-2">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <span
+                    key={idx}
+                    className="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-500 shadow-[0_0_8px_rgba(34,211,238,0.85)] animate-bounce"
+                    style={{ animationDelay: `${idx * 0.15}s` }}
+                  />
+                ))}
+              </div>
+
+              {/* Percentage Display */}
               <div className="flex items-baseline space-x-1 font-mono">
                 <span className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 tracking-tighter">
                   {progress}
@@ -409,7 +411,7 @@ export default function Logo3DViewer({
                 <span className="text-2xl font-bold text-cyan-400">%</span>
               </div>
 
-              {/* Liquid Progress Bar Track */}
+              {/* Progress Track Bar */}
               <div className="w-full max-w-[260px] h-2.5 rounded-full bg-white/10 overflow-hidden p-[1px] border border-white/15 shadow-inner">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-400 transition-all duration-300 ease-out shadow-[0_0_15px_rgba(34,211,238,0.9)]"
