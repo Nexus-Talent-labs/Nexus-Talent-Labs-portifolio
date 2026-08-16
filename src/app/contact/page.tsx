@@ -77,8 +77,8 @@ export default function ContactPage() {
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-bold text-white block">Email Admissions</span>
-                    <span className="text-zinc-400">admissions@nexustalentlabs.edu</span>
+                    <span className="font-bold text-white block">Email Support</span>
+                    <span className="text-zinc-400">support@nexustalentlabs.com</span>
                   </div>
                 </div>
 

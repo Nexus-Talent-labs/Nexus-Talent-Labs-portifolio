@@ -53,9 +53,9 @@ export default function Navbar({ onOpenApply }: NavbarProps) {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
+    { name: 'Our Talents', href: '/faculty' },
     { name: 'Programs', href: '/programs' },
     { name: 'Placements', href: '/placements' },
-    { name: 'Faculty', href: '/faculty' },
     { name: 'Projects', href: '/projects' },
     { name: 'Events', href: '/events' },
     { name: 'Blogs', href: '/blog' },

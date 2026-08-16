@@ -22,6 +22,12 @@ import Stepper, { Step } from '@/components/reactbits/Stepper';
 import TypewriterText from '@/components/reactbits/TypewriterText';
 import CountUp from '@/components/reactbits/CountUp';
 import BounceCards, { BounceCardsItem } from '@/components/reactbits/BounceCards';
+import FacultyFlipCard, { FacultyMemberItem } from '@/components/reactbits/FacultyFlipCard';
+import AIGradientBorder from '@/components/reactbits/AIGradientBorder';
+import PillarDetailModal from '@/components/PillarDetailModal';
+import CRTModuleDetailModal from '@/components/CRTModuleDetailModal';
+import { PILLARS_DATA, PillarItem } from '@/data/pillars';
+import { CRT_MODULES_DATA, CRTModuleItem } from '@/data/crtModules';
 import dynamic from 'next/dynamic';
 
 const Logo3DViewer = dynamic(() => import('@/components/Logo3DViewer'), {
@@ -61,12 +67,17 @@ import {
   Monitor,
   Server,
   Lock,
-  Compass
+  Compass,
+  Rocket,
+  GraduationCap,
+  ShieldCheck
 } from 'lucide-react';
 
 export default function HomePage() {
   const [selectedProgramModal, setSelectedProgramModal] = useState<CourseProgram | null>(null);
   const [selectedProjectModal, setSelectedProjectModal] = useState<StudentProject | null>(null);
+  const [selectedPillar, setSelectedPillar] = useState<PillarItem | null>(null);
+  const [selectedCRTModule, setSelectedCRTModule] = useState<CRTModuleItem | null>(null);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [activeApplyProgramId, setActiveApplyProgramId] = useState<string | undefined>(undefined);
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -341,87 +352,68 @@ export default function HomePage() {
             <h3 className="text-2xl sm:text-4xl font-extrabold text-white font-['Outfit']">10 Reasons Why Students & Institutions Choose Us</h3>
           </div>
 
-          <div className="w-full pt-4 overflow-hidden">
-            <AccordionGallery
-              items={[
-                {
-                  number: '01',
-                  label: 'Industry-Aligned Curriculum',
-                  description: 'Continuously updated with GenAI, Agentic AI, Cloud, and Full Stack with AI technologies.',
-                  image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=900&q=80'
-                },
-                {
-                  number: '02',
-                  label: 'Corporate Hiring Standards',
-                  description: 'Training designed according to company hiring expectations and market demands.',
-                  image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=900&q=80'
-                },
-                {
-                  number: '03',
-                  label: 'Expert Trainers & Mentors',
-                  description: 'Learn directly from senior engineers with extensive industry experience.',
-                  image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=900&q=80'
-                },
-                {
-                  number: '04',
-                  label: 'Hands-On Labs & Live Projects',
-                  description: 'Practical learning through production-grade capstones and real case studies.',
-                  image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=900&q=80'
-                },
-                {
-                  number: '05',
-                  label: 'Specialized AI & Future Tech',
-                  description: 'GenAI, Prompt Engineering, LLMs, RAG, and Agentic AI workflows.',
-                  image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?w=900&q=80'
-                },
-                {
-                  number: '06',
-                  label: 'Personalized Mentoring',
-                  description: 'Continuous performance assessments and 1-on-1 escalation reviews.',
-                  image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=900&q=80'
-                },
-                {
-                  number: '07',
-                  label: 'Placement-Focused CRT',
-                  description: 'Comprehensive coding assessments, mock interviews, and HR prep.',
-                  image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=900&q=80'
-                },
-                {
-                  number: '08',
-                  label: 'Customized Institutional Solutions',
-                  description: 'Tailored learning programs for colleges, universities, and organizations.',
-                  image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&q=80'
-                },
-                {
-                  number: '09',
-                  label: 'Certification-Oriented Tracks',
-                  description: 'Programs structured to enhance global credentials and employability.',
-                  image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=900&q=80'
-                },
-                {
-                  number: '10',
-                  label: 'Lifelong Innovation & Support',
-                  description: 'Strong focus on problem solving, career growth, and continuous learning.',
-                  image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=900&q=80'
-                }
-              ]}
-              defaultIndex={0}
-              expandRatio={0.45}
-              trigger="hover"
-              accentColor="#38bdf8"
-              overlayColor="#060010"
-              textColor="#ffffff"
-              showLabels
-              duration={0.6}
-              ease="power3.out"
-              parallax={0.5}
-              tilt={6}
-              stagger={0.05}
-              height={480}
-              gap={10}
-              radius={20}
-              orientation="horizontal"
-            />
+          {/* 5 COLUMNS GRID LAYOUT (2 ROWS OF 5 CARDS EACH) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 pt-4">
+            {PILLARS_DATA.map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.1 }}
+                transition={{ duration: 0.5, delay: idx * 0.05 }}
+                className="h-full"
+              >
+                <AIGradientBorder duration={4 + (idx % 4)} className="rounded-3xl h-full hover:-translate-y-1.5 transition-all duration-300">
+                  <div 
+                    onClick={() => setSelectedPillar(item)}
+                    className="p-5 flex flex-col justify-between space-y-4 h-full group cursor-pointer"
+                  >
+                    <div className="space-y-4">
+                      {/* Top Row: Number & Glowing Icon */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-3xl font-black font-['Space_Grotesk'] text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400">
+                          {item.num}
+                        </span>
+                        <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-300 shadow-md group-hover:scale-110 group-hover:bg-cyan-500/20 group-hover:border-cyan-400 transition-all">
+                          <item.icon className="w-5 h-5" />
+                        </div>
+                      </div>
+
+                      {/* Tag Pill */}
+                      <div>
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 inline-block">
+                          {item.tag}
+                        </span>
+                      </div>
+
+                      {/* Title & Description */}
+                      <div className="space-y-2">
+                        <h3 className="text-base font-bold text-white font-['Outfit'] group-hover:text-cyan-300 transition-colors leading-tight">
+                          {item.title}
+                        </h3>
+                        <p className="text-xs text-zinc-300 leading-relaxed font-sans line-clamp-3">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Interactive Overview Popup Trigger Button (Hidden initially, visible on cursor hover) */}
+                    <div className="pt-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedPillar(item);
+                        }}
+                        className="w-full py-2 px-3 rounded-xl bg-cyan-500/15 group-hover:bg-cyan-500/30 border border-cyan-500/40 group-hover:border-cyan-300 text-[11px] font-bold text-cyan-300 flex items-center justify-between transition-all shadow-lg shadow-cyan-500/10"
+                      >
+                        <span>Overview</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-cyan-300" />
+                      </button>
+                    </div>
+                  </div>
+                </AIGradientBorder>
+              </motion.div>
+            ))}
           </div>
         </div>
 
@@ -463,21 +455,27 @@ export default function HomePage() {
                 <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed max-w-2xl mx-auto">
                   Comprehensive training modules designed for engineering colleges, academic institutions, and technology graduates:
                 </p>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-white font-semibold pt-2">
-                  {[
-                    'Quantitative Aptitude',
-                    'Logical & Analytical Reasoning',
-                    'Verbal Ability & Communication',
-                    'Coding Assessments & Problem Solving',
-                    'Group Discussions',
-                    'Resume & LinkedIn Optimization',
-                    'Technical Interview Prep',
-                    'Mock Interviews with Feedback'
-                  ].map((crt, i) => (
-                    <div key={i} className="p-3.5 rounded-2xl bg-black/75 border border-white/20 backdrop-blur-lg flex items-center justify-center gap-2 shadow-lg hover:border-cyan-400/50 transition-all">
-                      <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
-                      <span className="text-[11px] font-bold">{crt}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 text-xs text-zinc-300 font-medium pt-2 text-left">
+                  {CRT_MODULES_DATA.map((crt) => (
+                    <div 
+                      key={crt.id} 
+                      onClick={() => setSelectedCRTModule(crt)}
+                      className="p-3.5 rounded-2xl bg-black/80 border border-white/20 backdrop-blur-lg flex items-center justify-between gap-2.5 shadow-lg hover:border-cyan-400/60 hover:bg-cyan-500/10 transition-all group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                        <span className="text-[11px] font-bold text-zinc-200 group-hover:text-white transition-colors truncate">{crt.title}</span>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCRTModule(crt);
+                        }}
+                        className="w-6 h-6 rounded-lg bg-cyan-500/10 group-hover:bg-cyan-500/30 border border-cyan-500/30 group-hover:border-cyan-400 flex items-center justify-center text-cyan-300 shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-90 group-hover:scale-100"
+                        title={`View overview of ${crt.title}`}
+                      >
+                        <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -1191,7 +1189,21 @@ export default function HomePage() {
         initialProgramId={activeApplyProgramId}
       />
 
-      {/* Floating Ask AI Assistant Widget */}
+      {/* Pillar Card Detailed Popup Overview Modal */}
+      <PillarDetailModal
+        pillar={selectedPillar}
+        onClose={() => setSelectedPillar(null)}
+        onOpenApply={() => handleOpenApply()}
+      />
+
+      {/* CRT Module Detailed Popup Overview Modal */}
+      <CRTModuleDetailModal
+        module={selectedCRTModule}
+        onClose={() => setSelectedCRTModule(null)}
+        onOpenApply={() => handleOpenApply()}
+      />
+
+      {/* AI Assistance Widget */}
       <AskAIWidget />
     </div>
   );

@@ -14,6 +14,13 @@ interface ApplicationModalProps {
 export default function ApplicationModal({ isOpen, onClose, initialProgramId }: ApplicationModalProps) {
   const [step, setStep] = useState(1);
   const [selectedProgram, setSelectedProgram] = useState(initialProgramId || PROGRAMS_DATA[0].id);
+
+  React.useEffect(() => {
+    if (initialProgramId) {
+      setSelectedProgram(initialProgramId);
+    }
+  }, [initialProgramId, isOpen]);
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -107,7 +114,7 @@ export default function ApplicationModal({ isOpen, onClose, initialProgramId }: 
                     >
                       {PROGRAMS_DATA.map((prog) => (
                         <option key={prog.id} value={prog.id} className="bg-[#09090b] text-white">
-                          {prog.title} ({prog.duration} • {prog.fee})
+                          {prog.title} ({prog.duration})
                         </option>
                       ))}
                     </select>
@@ -235,10 +242,6 @@ export default function ApplicationModal({ isOpen, onClose, initialProgramId }: 
                     <div className="flex justify-between">
                       <span className="text-zinc-400">Selected Track:</span>
                       <span className="font-bold text-cyan-400">{currentProgramObj.title}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-zinc-400">Base Tuition Fee:</span>
-                      <span className="font-bold text-white">{currentProgramObj.fee}</span>
                     </div>
                   </div>
 
