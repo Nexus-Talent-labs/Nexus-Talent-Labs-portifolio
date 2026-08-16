@@ -10,7 +10,7 @@ interface Logo3DViewerProps {
 }
 
 export default function Logo3DViewer({
-  modelPath = '/glb/logo.glb',
+  modelPath = 'public/glb/logo.glb',
   className = 'w-full h-[380px] sm:h-[480px]'
 }: Logo3DViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -113,9 +113,12 @@ export default function Logo3DViewer({
       scene.add(ringMesh);
     }
 
-    // Load GLB Model Asset
+    // Load GLB Model Asset (Map 'public/glb/logo.glb' or '/glb/logo.glb' to Next.js static asset path)
     const loader = new GLTFLoader();
-    const targetUrl = modelPath && modelPath.startsWith('/') ? modelPath : '/glb/logo.glb';
+    let targetUrl = modelPath || '/glb/logo.glb';
+    if (targetUrl.startsWith('public/')) {
+      targetUrl = targetUrl.replace(/^public\//, '/');
+    }
 
     loader.load(
       targetUrl,
