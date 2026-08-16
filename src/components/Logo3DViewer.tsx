@@ -44,20 +44,24 @@ export default function Logo3DViewer({
 
     container.appendChild(renderer.domElement);
 
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);
+    // Lights (Hemisphere + Dual Directional + Ambient + Point Light for maximum visibility)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.5);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0x38bdf8, 3.0);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x333344, 2.0);
+    hemiLight.position.set(0, 20, 0);
+    scene.add(hemiLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0x38bdf8, 3.2);
     dirLight1.position.set(5, 8, 5);
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0xa855f7, 2.5);
+    const dirLight2 = new THREE.DirectionalLight(0xa855f7, 2.8);
     dirLight2.position.set(-5, -4, -5);
     scene.add(dirLight2);
 
-    const pointLight = new THREE.PointLight(0x06b6d4, 4.0, 20);
-    pointLight.position.set(0, 2, 4);
+    const pointLight = new THREE.PointLight(0x06b6d4, 4.5, 25);
+    pointLight.position.set(0, 2, 5);
     scene.add(pointLight);
 
     let modelGroup: THREE.Group | null = null;
@@ -128,6 +132,20 @@ export default function Logo3DViewer({
       targetUrl,
       (gltf) => {
         const loadedScene = gltf.scene;
+
+        // Traverse sub-meshes to ensure materials render double-sided & vibrant
+        loadedScene.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mesh = child as THREE.Mesh;
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            if (mesh.material) {
+              const mat = mesh.material as THREE.MeshStandardMaterial;
+              mat.side = THREE.DoubleSide;
+              mat.needsUpdate = true;
+            }
+          }
+        });
 
         // Play internal GLTF keyframe/skeletal animations if present in the file
         if (gltf.animations && gltf.animations.length > 0) {
