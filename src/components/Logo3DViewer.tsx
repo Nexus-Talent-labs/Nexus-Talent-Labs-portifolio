@@ -123,6 +123,50 @@ export default function Logo3DViewer({
       scene.add(ringMesh);
     }
 
+    // Create procedural 3D Nexus logo as immediate high-performance render / fallback
+    const createProceduralFallbackLogo = () => {
+      const group = new THREE.Group();
+
+      // Outer Wireframe Crystal/Icosahedron
+      const outerGeo = new THREE.IcosahedronGeometry(1.2, 1);
+      const outerMat = new THREE.MeshStandardMaterial({
+        color: 0x38bdf8,
+        wireframe: true,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.4,
+        roughness: 0.2,
+        metalness: 0.8
+      });
+      const outerMesh = new THREE.Mesh(outerGeo, outerMat);
+      group.add(outerMesh);
+
+      // Inner Glowing Core Sphere
+      const innerGeo = new THREE.IcosahedronGeometry(0.75, 2);
+      const innerMat = new THREE.MeshStandardMaterial({
+        color: 0xa855f7,
+        emissive: 0x7c3aed,
+        emissiveIntensity: 0.8,
+        roughness: 0.1,
+        metalness: 0.9
+      });
+      const innerMesh = new THREE.Mesh(innerGeo, innerMat);
+      group.add(innerMesh);
+
+      // Orbiting Particle Ring
+      const torusGeo = new THREE.TorusGeometry(1.55, 0.02, 16, 100);
+      const torusMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee });
+      const torusMesh = new THREE.Mesh(torusGeo, torusMat);
+      torusMesh.rotation.x = Math.PI / 3;
+      group.add(torusMesh);
+
+      group.position.set(0, 0.1, 0);
+      return group;
+    };
+
+    let fallbackGroup: THREE.Group | null = createProceduralFallbackLogo();
+    scene.add(fallbackGroup);
+    modelGroup = fallbackGroup;
+
     // Load GLB Model Asset directly from /glb/logo.glb
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
@@ -179,9 +223,15 @@ export default function Logo3DViewer({
         }
 
         pivotGroup.position.set(0, 0.1, 0);
-        modelGroup = pivotGroup;
 
+        // Remove fallback model if present and replace with loaded GLB
+        if (fallbackGroup) {
+          scene.remove(fallbackGroup);
+          fallbackGroup = null;
+        }
+        modelGroup = pivotGroup;
         scene.add(pivotGroup);
+
         setErrorMsg(null);
         setLoading(false);
       },
@@ -192,14 +242,10 @@ export default function Logo3DViewer({
         }
       },
       (err: unknown) => {
-        console.error('Error loading 3D GLB model:', err);
-        const message = err instanceof Error ? err.message : String(err);
-        if (message.includes("Unexpected token 'v'") || message.includes('JSON')) {
-          setErrorMsg('Deploying 5.5MB 3D Model... Please push the updated public/glb/logo.glb');
-        } else {
-          setErrorMsg(message || 'Failed to render 3D asset');
-        }
+        console.warn('GLB model load fallback active:', err);
+        // If GLB fails to fetch (e.g. 404 on deployment), keep procedural 3D model running smoothly
         setLoading(false);
+        setErrorMsg(null);
       }
     );
 
