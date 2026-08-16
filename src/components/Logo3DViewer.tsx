@@ -447,8 +447,8 @@ export default function Logo3DViewer({
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                 <span>
                   {progress < 100
-                    ? 'Loading 3D Phoenix Engine...'
-                    : 'System Ready • Launching Nexus'}
+                    ? 'Loading...'
+                    : 'Loaded'}
                 </span>
               </div>
 
