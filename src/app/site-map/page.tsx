@@ -94,6 +94,23 @@ export default function SitemapPage() {
           <p className="text-sm sm:text-base text-zinc-300 max-w-2xl mx-auto leading-relaxed">
             A complete architectural index of the Nexus Talent Labs platform. Easily navigate all sections, programs, and career resources.
           </p>
+
+          {/* Search Engine XML Sitemap Banner for Google Search Console */}
+          <div className="max-w-2xl mx-auto p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="text-left text-zinc-300">
+              <span className="font-bold text-white block">Google Search Console XML Sitemap</span>
+              <span>Official XML index formatted for Google, Bing, and Search Crawlers.</span>
+            </div>
+            <a
+              href="/sitemap.xml"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shadow-lg shadow-blue-600/30"
+            >
+              <span>sitemap.xml</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
 
         {/* 5 CATEGORY CARDS GRID */}
