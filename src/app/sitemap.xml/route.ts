@@ -1,4 +1,4 @@
-import { NextResponse } from 'next';
+import { NextResponse } from 'next/server';
 import { PROGRAMS_DATA } from '@/data/programs';
 import { BLOG_POSTS } from '@/data/blog';
 
