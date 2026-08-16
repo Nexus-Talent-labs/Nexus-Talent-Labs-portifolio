@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import React from 'react';
+import GlobalAppLoader from '@/components/GlobalAppLoader';
 
 export const metadata: Metadata = {
   title: 'Nexus Talent Labs Institute | AI, Cloud & Full Stack Excellence',
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <body className="bg-[#09090b] text-zinc-100 antialiased selection:bg-blue-600/30 selection:text-cyan-300">
+        <GlobalAppLoader />
         {children}
       </body>
     </html>

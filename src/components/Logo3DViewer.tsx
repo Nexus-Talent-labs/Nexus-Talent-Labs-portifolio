@@ -11,13 +11,27 @@ interface Logo3DViewerProps {
 }
 
 export default function Logo3DViewer({
-  modelPath = '/glb/logo_compressed.glb',
+  modelPath = '/glb/logo.glb',
   className = 'w-full h-[380px] sm:h-[480px]'
 }: Logo3DViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const updateProgress = (percent: number) => {
+    setProgress(percent);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('3d-model-progress', { detail: percent }));
+    }
+  };
+
+  const notifyLoaded = () => {
+    setLoading(false);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('3d-model-loaded'));
+    }
+  };
 
   useEffect(() => {
     const container = mountRef.current;
@@ -123,6 +137,8 @@ export default function Logo3DViewer({
       scene.add(ringMesh);
     }
 
+    let fallbackGroup: THREE.Group | null = null;
+
     // Create procedural 3D Nexus logo as immediate high-performance render / fallback
     const createProceduralFallbackLogo = () => {
       const group = new THREE.Group();
@@ -163,10 +179,6 @@ export default function Logo3DViewer({
       return group;
     };
 
-    let fallbackGroup: THREE.Group | null = createProceduralFallbackLogo();
-    scene.add(fallbackGroup);
-    modelGroup = fallbackGroup;
-
     // Load GLB Model Asset with candidate path resolution
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
@@ -178,15 +190,20 @@ export default function Logo3DViewer({
       '/glb/logo.glb',
       './glb/logo.glb',
       'glb/logo.glb'
-    ].filter((url, index, self) => url && self.indexOf(url) === index);
+    ].filter((url, index, self) => Boolean(url) && self.indexOf(url) === index) as string[];
 
     let currentCandidateIndex = 0;
 
     const tryLoadNextCandidate = () => {
       if (currentCandidateIndex >= candidateUrls.length) {
-        console.warn('All GLB candidate paths failed. Maintaining procedural 3D logo fallback.');
-        setLoading(false);
+        console.warn('All GLB candidate paths failed. Rendering 3D logo fallback.');
+        if (!fallbackGroup) {
+          fallbackGroup = createProceduralFallbackLogo();
+          scene.add(fallbackGroup);
+          modelGroup = fallbackGroup;
+        }
         setErrorMsg(null);
+        notifyLoaded();
         return;
       }
 
@@ -248,12 +265,18 @@ export default function Logo3DViewer({
           scene.add(pivotGroup);
 
           setErrorMsg(null);
-          setLoading(false);
+          updateProgress(100);
+          notifyLoaded();
         },
         (xhr) => {
-          if (xhr.lengthComputable) {
+          if (xhr.lengthComputable && xhr.total > 0) {
             const percent = Math.round((xhr.loaded / xhr.total) * 100);
-            setProgress(percent);
+            updateProgress(percent);
+          } else if (xhr.loaded > 0) {
+            // Fallback progress calculation for chunked HTTP transfer (~5.58 MB file size)
+            const estimatedTotalBytes = 5584560;
+            const percent = Math.min(99, Math.round((xhr.loaded / estimatedTotalBytes) * 100));
+            updateProgress(percent);
           }
         },
         (err: unknown) => {
