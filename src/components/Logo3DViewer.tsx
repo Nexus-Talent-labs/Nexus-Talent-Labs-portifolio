@@ -288,9 +288,16 @@ export default function Logo3DViewer({
 
     tryLoadNextCandidate();
 
+    let is3dVisible = true;
+    const handle3dVisibility = () => {
+      is3dVisible = !document.hidden;
+    };
+    document.addEventListener('visibilitychange', handle3dVisibility);
+
     // Animation Loop
     const animate = () => {
       reqId = requestAnimationFrame(animate);
+      if (!is3dVisible) return;
 
       const delta = clock.getDelta();
 
@@ -341,6 +348,7 @@ export default function Logo3DViewer({
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handle3dVisibility);
       cancelAnimationFrame(reqId);
       if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);

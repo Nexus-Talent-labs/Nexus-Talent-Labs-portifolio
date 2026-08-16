@@ -22,8 +22,11 @@ import Stepper, { Step } from '@/components/reactbits/Stepper';
 import TypewriterText from '@/components/reactbits/TypewriterText';
 import CountUp from '@/components/reactbits/CountUp';
 import BounceCards, { BounceCardsItem } from '@/components/reactbits/BounceCards';
-import FacultyFlipCard, { FacultyMemberItem } from '@/components/reactbits/FacultyFlipCard';
-import Logo3DViewer from '@/components/Logo3DViewer';
+import dynamic from 'next/dynamic';
+
+const Logo3DViewer = dynamic(() => import('@/components/Logo3DViewer'), {
+  ssr: false,
+});
 import { PROGRAMS_DATA, CourseProgram } from '@/data/programs';
 import { PLACEMENT_STATS, HIRING_COMPANIES, SUCCESS_STORIES } from '@/data/placements';
 import { STUDENT_PROJECTS, StudentProject } from '@/data/projects';

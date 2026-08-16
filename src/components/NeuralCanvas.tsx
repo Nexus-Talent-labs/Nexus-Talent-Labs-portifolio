@@ -13,6 +13,7 @@ export default function NeuralCanvas() {
     if (!ctx) return;
 
     let animationFrameId: number;
+    let isVisible = true;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
@@ -23,8 +24,14 @@ export default function NeuralCanvas() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Particle nodes
-    const nodeCount = Math.floor(Math.min(width, 1400) / 18);
+    // Pause rendering when tab is hidden to save CPU & GPU memory
+    const handleVisibilityChange = () => {
+      isVisible = !document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Optimized particle node count based on screen width
+    const nodeCount = Math.floor(Math.min(width, 1000) / 35);
     const nodes: {
       x: number;
       y: number;
@@ -34,7 +41,7 @@ export default function NeuralCanvas() {
       baseAlpha: number;
     }[] = [];
 
-    const mouse = { x: -1000, y: -1000, radius: 180 };
+    const mouse = { x: -1000, y: -1000, radius: 160 };
 
     const handleMouseMove = (e: MouseEvent) => {
       mouse.x = e.clientX;
@@ -46,17 +53,20 @@ export default function NeuralCanvas() {
       nodes.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: (Math.random() - 0.5) * 0.6,
-        radius: Math.random() * 2 + 1.2,
-        baseAlpha: Math.random() * 0.5 + 0.2,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        radius: Math.random() * 1.5 + 1.0,
+        baseAlpha: Math.random() * 0.4 + 0.2,
       });
     }
 
     const render = () => {
+      animationFrameId = requestAnimationFrame(render);
+      if (!isVisible) return;
+
       ctx.clearRect(0, 0, width, height);
 
-      // Draw connections
+      // Draw connections & nodes (Optimized without heavy shadowBlur)
       for (let i = 0; i < nodes.length; i++) {
         const nodeA = nodes[i];
 
@@ -71,10 +81,7 @@ export default function NeuralCanvas() {
         ctx.beginPath();
         ctx.arc(nodeA.x, nodeA.y, nodeA.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(59, 130, 246, ${nodeA.baseAlpha})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = '#3b82f6';
         ctx.fill();
-        ctx.shadowBlur = 0;
 
         // Connect nearby nodes
         for (let j = i + 1; j < nodes.length; j++) {
@@ -83,13 +90,13 @@ export default function NeuralCanvas() {
           const dy = nodeA.y - nodeB.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < 130) {
-            const alpha = (1 - dist / 130) * 0.22;
+          if (dist < 110) {
+            const alpha = (1 - dist / 110) * 0.2;
             ctx.beginPath();
             ctx.moveTo(nodeA.x, nodeA.y);
             ctx.lineTo(nodeB.x, nodeB.y);
             ctx.strokeStyle = `rgba(59, 130, 246, ${alpha})`;
-            ctx.lineWidth = 0.8;
+            ctx.lineWidth = 0.7;
             ctx.stroke();
           }
         }
@@ -100,17 +107,15 @@ export default function NeuralCanvas() {
         const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
 
         if (mdist < mouse.radius) {
-          const malpha = (1 - mdist / mouse.radius) * 0.6;
+          const malpha = (1 - mdist / mouse.radius) * 0.5;
           ctx.beginPath();
           ctx.moveTo(nodeA.x, nodeA.y);
           ctx.lineTo(mouse.x, mouse.y);
           ctx.strokeStyle = `rgba(34, 211, 238, ${malpha})`;
-          ctx.lineWidth = 1.2;
+          ctx.lineWidth = 1.0;
           ctx.stroke();
         }
       }
-
-      animationFrameId = requestAnimationFrame(render);
     };
 
     render();
@@ -118,6 +123,7 @@ export default function NeuralCanvas() {
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
