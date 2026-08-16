@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.70.0",
     "@types/three": "^0.185.4",
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
