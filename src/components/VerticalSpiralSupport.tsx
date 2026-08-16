@@ -153,31 +153,37 @@ function SpiralCard({
 }) {
   const FeatureIcon = card.icon;
 
-  // Transform rotation and Y offset based on vertical scroll progress
-  const transformStyle = useTransform(smoothProgress, (p: number) => {
+  // Individual Framer Motion transforms for valid MotionStyle prop types
+  const transform = useTransform(smoothProgress, (p: number) => {
     const currentAngle = baseAngle + p * Math.PI * 2.2;
-    const radius = 320; // horizontal radius
+    const radius = 320;
     const x = Math.sin(currentAngle) * radius;
     const z = Math.cos(currentAngle) * radius - 100;
-    
-    // Vertical spiral staircase step placement
     const verticalOffset = (idx - totalCards / 2) * 85 + (p - 0.5) * 220;
     const rotateYDeg = (currentAngle * (180 / Math.PI)) % 360;
-
     const depthProgress = (z + radius) / (radius * 1.5);
     const scale = Math.max(0.72, Math.min(1.1, 0.72 + depthProgress * 0.38));
-    const opacity = Math.max(0.3, Math.min(1, 0.3 + depthProgress * 0.7));
+    return `translate3d(${x}px, ${verticalOffset}px, ${z}px) rotateY(${rotateYDeg}deg) scale(${scale})`;
+  });
 
-    return {
-      transform: `translate3d(${x}px, ${verticalOffset}px, ${z}px) rotateY(${rotateYDeg}deg) scale(${scale})`,
-      opacity,
-      zIndex: Math.round(z + 500)
-    };
+  const opacity = useTransform(smoothProgress, (p: number) => {
+    const currentAngle = baseAngle + p * Math.PI * 2.2;
+    const radius = 320;
+    const z = Math.cos(currentAngle) * radius - 100;
+    const depthProgress = (z + radius) / (radius * 1.5);
+    return Math.max(0.3, Math.min(1, 0.3 + depthProgress * 0.7));
+  });
+
+  const zIndex = useTransform(smoothProgress, (p: number) => {
+    const currentAngle = baseAngle + p * Math.PI * 2.2;
+    const radius = 320;
+    const z = Math.cos(currentAngle) * radius - 100;
+    return Math.round(z + 500);
   });
 
   return (
     <motion.div
-      style={transformStyle}
+      style={{ transform, opacity, zIndex }}
       className="absolute w-[280px] sm:w-[320px]"
     >
       <SpotlightCard className={`p-6 space-y-4 rounded-3xl border ${card.borderColor} bg-[#0a0c20]/95 backdrop-blur-xl shadow-2xl relative group hover:border-cyan-400 transition-all`}>

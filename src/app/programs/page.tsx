@@ -63,6 +63,7 @@ export default function ProgramsPage() {
         placementRate: '96.4%',
         badge: 'Industry Standard',
         icon: 'Brain',
+        image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80',
         modules: [
           `Foundations & Core Principles of ${topicName}`,
           `Advanced Hands-On Lab Workflows in ${topicName}`,

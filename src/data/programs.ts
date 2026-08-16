@@ -116,6 +116,7 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     placementRate: '97%',
     badge: 'Enterprise Gold',
     icon: 'Layers',
+    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80',
     modules: [
       'Core & Advanced Java 21 Functional Programming',
       'Spring Boot 3 REST APIs & Spring AI LLM Integration',
@@ -142,6 +143,7 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     placementRate: '97%',
     badge: 'Most Popular',
     icon: 'Terminal',
+    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80',
     modules: [
       'Modern JavaScript (ESNext) & TypeScript Deep Dive',
       'React 18 Component Architecture & AI Copilot Integration',
@@ -168,6 +170,7 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     placementRate: '96%',
     badge: 'AWS Certified',
     icon: 'Cloud',
+    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&auto=format&fit=crop&q=80',
     modules: [
       'AWS Cloud Networking (VPC, Transit Gateway, Route53)',
       'Serverless Architectures with AWS Lambda & API Gateway',
@@ -193,6 +196,7 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     placementRate: '98%',
     badge: 'CKA Aligned',
     icon: 'Cpu',
+    image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=800&auto=format&fit=crop&q=80',
     modules: [
       'Linux Kernel Administration & Shell Automation',
       'Docker Multi-Stage Builds & Security Scanning',
@@ -218,6 +222,7 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     placementRate: '95%',
     badge: 'Design Tech Master',
     icon: 'Layout',
+    image: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800&auto=format&fit=crop&q=80',
     modules: [
       'Figma Masterclass, Auto Layout 5 & Component Variants',
       'Adobe Illustrator & Photoshop for Vector Graphics & UI Assets',
@@ -244,6 +249,7 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     placementRate: '94%',
     badge: 'Fast Track',
     icon: 'TrendingUp',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
     modules: [
       'Advanced Excel Data Modeling & Pivot Tables',
       'SQL Query Optimization & Data Cleaning',
@@ -269,6 +275,7 @@ export const PROGRAMS_DATA: CourseProgram[] = [
     placementRate: '98%',
     badge: 'Institutional MoU',
     icon: 'Building2',
+    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&auto=format&fit=crop&q=80',
     modules: [
       'Campus Recruitment Training (CRT) Bootcamp',
       'Faculty Development Programs (FDPs)',
